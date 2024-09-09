@@ -18,10 +18,10 @@
     <div class="unit_management_info">
       <el-tabs v-model="activeName" @tab-click="tabClick">
         <el-tab-pane label="成绩情况" name="1">
-          <Grade />
+          <Grade :message="unitDetail.courseId" />
         </el-tab-pane>
         <el-tab-pane label="学生教评" name="2">
-          <Evaluate />
+          <Evaluate :message="unitDetail.courseId" />
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -30,7 +30,6 @@
 
 <script>
 import baseInfoValue from '@/components/baseInfoValue'
-import EmptyCom from '@/components/EmptyCom/index.vue'
 import Grade from './components/grade.vue'
 import Evaluate from './components/evaluate.vue'
 import {
@@ -42,7 +41,6 @@ import {
 export default {
   name: 'UnitDetail',
   components: {
-    EmptyCom,
     Grade,
     baseInfoValue,
     Evaluate
@@ -103,7 +101,6 @@ export default {
       this.$router.go(-1)
     },
     tabClick(val) {
-      console.log(val.name)
       const { name } = val
       if (name === '3') {
         this.getInfo(this.name)

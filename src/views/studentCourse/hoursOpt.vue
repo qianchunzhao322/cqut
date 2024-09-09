@@ -5,10 +5,9 @@
         <el-row :gutter="15">
           <el-form ref="elForm" :model="formData" size="medium" class="demo_ruleForm" label-width="100px">
             <el-col :span="6">
-              <el-form-item label-width="95px" label="本人课程" prop="stuName">
+              <el-form-item label-width="95px" label="本人课程：" prop="courseId">
                 <el-select v-model="formData.courseId" placeholder="请选择">
-                  <el-option v-for="item in courseOpt" :key="item.value" :label="item.label" :value="item.value">
-                  </el-option>
+                  <el-option v-for="item in courseList" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
             </el-col>
@@ -24,16 +23,21 @@
       <template slot="main">
         <div class="contorl_container">
           <div class="contorl_title">课时列表</div>
-          <div class="contorl_btns">
-          </div>
+          <div class="contorl_btns" />
         </div>
 
-        <Etable  height="100%" :table-head-config="tableHeadConfig" :table-load-data="tableData" :list-loading="loading" align="left">
+        <Etable height="100%" :table-head-config="tableHeadConfig" :table-load-data="tableData" :list-loading="loading" align="left">
           <template slot="index" slot-scope="{ data }">
             <span>{{ data.$index + 1 }}</span>
           </template>
+          <template slot="courseInterval" slot-scope="{ data }">
+            <span>{{ data.row.courseStartTime }} - {{ data.row.courseEndTime }}</span>
+          </template>
+          <template slot="hasBack" slot-scope="{ data }">
+            <el-button size="medium" :type="!data.row.hasBack ? 'success' : 'warning'" disabled plain>{{ !data.row.hasBack ? '已选课时' : "已退课时" }}</el-button>
+          </template>
           <template slot="operation" slot-scope="{ data }">
-            <el-button type="text" size="small" style="color: #F74B4B;" @click="del(data.row)"> 退课时 </el-button>
+            <el-button type="text" :disabled="data.row.hasBack" size="small" style="color: #F74B4B;" @click="del(data.row)"> 退课时 </el-button>
           </template>
         </Etable>
       </template>
@@ -46,7 +50,9 @@
 
 <script>
 import PaginationVue from '@/components/Pagination/index.vue'
-import { selectAlumniType, addAlumniType, editAlumniType, deleteAlumniType } from '@/api/systemSettings/userOpt'
+import { getMyCourseScheduling, backCourseScheduling } from '@/api/studentCourseOpt'
+import { selectCourse } from '@/api/systemSettings/courseOpt'
+import { getInfo } from '@/api/user'
 import { mapGetters } from 'vuex'
 export default {
   name: 'HoursOpt',
@@ -74,44 +80,40 @@ export default {
         },
         {
           label: '教师姓名',
-          value: 'courseTeacherName',
+          value: 'teaName',
           tooltip: true
         },
         {
-          label: '课程地点',
-          value: 'courseSite',
-          tooltip: true
-        },
-        {
-          label: '课程周次',
-          value: 'courseWeek',
-          tooltip: true
-        },
-        {
-          label: '课程日期',
+          label: '课时日期',
           value: 'courseDay',
           tooltip: true
         },
         {
-          label: '课程时间',
-          value: 'courseInterval',
-          tooltip: true,
-          width: 160
+          label: '课时时间',
+          columnType: 'slot',
+          slotName: 'courseInterval',
+          width: 200
         },
         {
-          label: '课时要求',
-          value: 'courseHours',
+          label: '课时地点',
+          value: 'courseSite',
           tooltip: true
         },
         {
-          label: '课程日说明',
+          label: '课时周次',
+          value: 'courseWeek',
+          tooltip: true
+        },
+        {
+          label: '课时日说明',
           value: 'courseDayStr',
           tooltip: true
         },
         {
-          label: '课程周说明',
-          value: 'courseWeekStr',
-          tooltip: true
+          label: '课时状态',
+          columnType: 'slot',
+          slotName: 'hasBack',
+          fixed: 'right'
         },
         {
           width: 80,
@@ -121,24 +123,19 @@ export default {
           slotName: 'operation'
         }
       ],
-      courseOpt: [{
-        label: '光信息1',
-        value: '1243421'
-      },{
-        label: '光信息2',
-        value: '124341'
-      }],
       formData: {
-        courseId: null,
+        courseId: null
       },
+      userRealId: null,
+      courseList: [],
       tableData: [],
       currentPage: 1,
-      pageSize: 10,
-      pageTotal: 0,
+      pageSize: 20,
+      pageTotal: 0
     }
   },
   computed: {
-    ...mapGetters(['userId'])
+    ...mapGetters(['userId', 'userInfo'])
   },
   mounted() {
     this.init()
@@ -148,49 +145,38 @@ export default {
   methods: {
     // 初始化
     init() {
-      this.taskSelect1()
+      this.getCourse()
+      this.taskSelect()
     },
-    taskSelect1() {
-      this.tableData = [{
-        courseName: '光信息科学与技术',
-        courseTeacherName: '张三',
-        courseWeek: '3',
-        courseDay: '2024/7/7',
-        courseInterval: '18:33:33-19:33:33',
-        courseDayStr: '星期四',
-        courseWeekStr: '',
-        courseHours: '6',
-        courseSite: '文山楼302',
-      },{
-        courseName: '光信息科学与技术',
-        courseTeacherName: '张三',
-        courseWeek: '3',
-        courseDay: '2024/7/7',
-        courseInterval: '18:33:33-19:33:33',
-        courseDayStr: '星期四',
-        courseWeekStr: '',
-        courseHours: '6',
-        courseSite: '文山楼302',
-      }
-    ]
+    getCourse() {
+      selectCourse({ page: 1, pageSize: 100 }).then((res) => {
+        res.data.records.forEach(e => {
+          var temp = {
+            value: e.courseId,
+            label: e.courseName
+          }
+          this.courseList.push(temp)
+        })
+        this.cardData = res.data.records
+      })
     },
-    // 任务-条件搜索
     taskSelect(type) {
       this.$startLoading('inhert_main')
       type ? (this.currentPage = 1) : null
-      const params = { ...this.formData, page: this.currentPage, pageSize: this.pageSize, time: null }
-      // delete params.times
-      selectAlumniType(params).then((res) => {
-        this.tableData = res.data
-        this.pageTotal = +res.total
-        this.$closeLoading('inhert_main')
+      getInfo(this.userInfo.id).then((res) => {
+        this.userRealId = res.data.userId
+        const params = { ...this.formData, stuId: this.userRealId, page: this.currentPage, pageSize: this.pageSize }
+        getMyCourseScheduling(params).then((res) => {
+          this.tableData = res.data.records
+          this.pageTotal = +res.data.total
+          this.$closeLoading('inhert_main')
+        })
       })
     },
-    // 重置按钮事件
     taskOptionsReset() {
       // $refs['elForm'].resetFields()重置后搜索接口参数有问题不清空
       this.formData.courseId = null
-      this.taskSelect1()
+      this.taskSelect()
     },
     // 表格-删除
     del(row) {
@@ -208,13 +194,13 @@ export default {
     },
     // deleteAlumni
     deleteAlumni(id) {
-      deleteAlumniType({ id }).then((res) => {
-        if (res.result) {
+      backCourseScheduling(this.userRealId, id).then((res) => {
+        if (res.code === 200) {
           this.$message.success('退课时成功')
           this.taskSelect()
         }
       })
-    },
+    }
   }
 }
 </script>

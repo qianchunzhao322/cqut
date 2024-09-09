@@ -143,7 +143,8 @@ export default {
     openEdit(index) {
       this.dialogFormVisible = true
       this.info = this.mainProductsList[index].children[0]
-      this.info.courseInterval = this.mainProductsList[index].children[0].courseStartTime + '至' + this.mainProductsList[index].children[0].courseEndTime
+      this.info.courseInterval = [this.mainProductsList[index].children[0].courseStartTime, this.mainProductsList[index].children[0].courseEndTime]
+      console.log(this.info.courseInterval)
     },
     editInfo() {
       var params = {
@@ -155,7 +156,8 @@ export default {
         courseStartTime: this.info.courseInterval[0],
         courseEndTime: this.info.courseInterval[1]
       }
-      courseSchedulingEdit(params).then((res) => {
+      const enforceEdit = true
+      courseSchedulingEdit(params, enforceEdit).then((res) => {
         if (res.code === 200) {
           this.$message.success('课时信息修改成功')
           this.dialogFormVisible = false
@@ -168,6 +170,8 @@ export default {
     },
     timeChange() {
       this.$forceUpdate()
+      console.log(this.info.courseInterval)
+
       this.info.courseStartTime = this.info.courseInterval[0]
       this.info.courseEndTime = this.info.courseInterval[1]
     }

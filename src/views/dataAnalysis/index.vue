@@ -106,12 +106,18 @@ export default {
       getInfo(this.userInfo.id).then((res) => {
         this.userData = [
           { key: '姓名', value: res.data.realName },
-          { key: '学号', value: res.data.userId },
           { key: '手机号', value: res.data.phoneNumber },
           { key: '身份证号', value: res.data.identityNumber }
         ]
-        if (this.userInfo.id === 3) {
-          this.userData.push({ key: '专业', value: res.data.majorId })
+        if (this.userInfo.permissionCode === '1') {
+          this.userData.splice(1, 0, { key: '编号', value: res.data.userId })
+        }
+        if (this.userInfo.permissionCode === '2') {
+          this.userData.splice(1, 0, { key: '教师号', value: res.data.userId })
+        }
+        if (this.userInfo.permissionCode === '3') {
+          this.userData.splice(1, 0, { key: '学号', value: res.data.userId })
+          // this.userData.push({ key: '专业', value: res.data.majorId })
         }
       })
     },

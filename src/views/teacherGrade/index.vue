@@ -11,12 +11,26 @@
               :data="tableData"
               highlight-current-row
               style="width: 100%; height: 100%;"
-              @current-change="handleCurrentChange"
             >
               <el-table-column
                 property="courseName"
                 label="课程名称"
               />
+              <el-table-column
+                fixed="right"
+                label="操作"
+                width="80"
+              >
+                <template slot-scope="scope">
+                  <el-button
+                    type="text"
+                    size="small"
+                    @click.native.prevent="detail(scope.$index, scope.row)"
+                  >
+                    查看
+                  </el-button>
+                </template>
+              </el-table-column>
             </el-table>
           </div>
           <!-- right 成绩 -->
@@ -24,9 +38,9 @@
             <base-layout footer-height="0">
               <template slot="main">
                 <div class="contorl_container">
-                  <div class="contorl_title">{{ scoreTableData.length>0? title : '课程成绩列表' }}</div>
+                  <div class="contorl_title">{{ scoreTableData.length>0? '课程：'+title : '学生成绩列表' }}</div>
                   <div class="contorl_btns">
-                    <el-button type="primary" plain @click="edit(data.row)"> 提交全部成绩 </el-button>
+                    <el-button type="primary" plain @click="upload"> 提交全部成绩 </el-button>
                   </div>
                 </div>
                 <Etable height="100%" :table-head-config="tableHeadConfig" :table-load-data="scoreTableData" :list-loading="scoreLoading" align="left">
@@ -52,7 +66,7 @@
 <script>
 // components
 // api
-import { getSearchList } from '@/api/alumniInfomation/index'
+import { getCourse, getStu, addGrade } from '@/api/teaCourseOpt'
 export default {
   name: 'TeacherGradeIndex',
   components: {
@@ -72,22 +86,17 @@ export default {
         },
         {
           label: '学号',
-          value: 'stuId',
+          value: 'userId',
           tooltip: true
         },
         {
           label: '姓名',
-          value: 'stuName',
-          tooltip: true
-        },
-        {
-          label: '研究方向',
-          value: 'stuOrient',
+          value: 'realName',
           tooltip: true
         },
         {
           label: '手机号',
-          value: 'stuPhone',
+          value: 'phoneNumber',
           tooltip: true
         },
         {
@@ -104,32 +113,57 @@ export default {
           slotName: 'operation'
         }
       ],
-      title: '课程成绩1',
-      scoreTableData: [{
-        stuId: '5243635',
-        stuName: 'zzz',
-        stuOrient: 'v那个i人过来',
-        stuPhone: '13333333333',
-        score: '8'
-      }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
-      tableData: [{
-        courseName: '昂贵的是'
-      }, {
-        courseName: '昂贵的是'
-      }, {
-        courseName: '昂贵的是'
-      }]
+      title: '',
+      scoreTableData: [],
+      tableData: []
     }
   },
   computed: {
   },
   mounted() {
+    this.init()
   },
   methods: {
-    handleCurrentChange(val) {
-      this.currentRow = val
+    init(val) {
+      getCourse().then((res) => {
+        if (res.code === 200) {
+          this.tableData = res.data
+        }
+      })
+    },
+    detail(index, row) {
+      this.title = row.courseName
+      getStu(row.courseId).then((res) => {
+        if (res.code === 200) {
+          var temp = res.data
+          temp.forEach(item => {
+            item.score = null
+          })
+          this.scoreTableData = temp
+        }
+      })
+    },
+    upload() {
+      this.edit(this.scoreTableData)
+    },
+    edit(row) {
+      row = [row]
+      var params = []
+      row.forEach(item => {
+        var temp = {
+          courseId: item.courseId,
+          courseScore: item.score,
+          stuId: item.userId,
+          stuName: item.realName
+        }
+        params.push(temp)
+      })
+      addGrade(params).then((res) => {
+        if (res.code === 200) {
+          this.$message.success('提交成功')
+        }
+      })
     }
-
   }
 }
 </script>

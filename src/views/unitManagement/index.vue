@@ -5,9 +5,9 @@
         <el-form ref="params" :model="params" label-width="7em" class="demo_ruleForm">
           <el-row>
             <el-col :span="5">
-              <el-form-item label="课程名称" prop="courseName">
+              <el-form-item label="课程名称" prop="courseId">
                 <el-select
-                  v-model="params.courseName"
+                  v-model="params.courseId"
                   clearable
                   class="w-100"
                   placeholder="请选择课程名称"
@@ -22,18 +22,18 @@
               </el-form-item>
             </el-col>
             <el-col :span="5">
-              <el-form-item label="授课教师" prop="teaName">
+              <el-form-item label="授课教师" prop="teaId">
                 <el-select
-                  v-model="params.teaName"
+                  v-model="params.teaId"
                   clearable
                   class="w-100"
                   placeholder="请选择授课教师"
                 >
                   <el-option
                     v-for="item in teaList"
-                    :key="item.id"
+                    :key="item.value"
                     :label="item.label"
-                    :value="item.id"
+                    :value="item.value"
                   />
                 </el-select>
               </el-form-item>
@@ -50,13 +50,12 @@
                   range-separator="至"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
-                  @change="getValue('time', 'createDate', 'createDateEnd', 'time')"
                 />
               </el-form-item>
             </el-col>
             <el-col :span="7">
               <div class="search_btns">
-                <el-button type="primary" @click="taskSelect">搜索</el-button>
+                <el-button type="primary" @click="taskSelect(1)">搜索</el-button>
                 <el-button @click="resetForm('params')">重置</el-button>
               </div>
             </el-col>
@@ -96,7 +95,6 @@
           :table-load-data="tableData"
           :list-loading="loading"
           align="left"
-          @sortChange="sortChange"
           @selectLine="handleSelectionChange"
         >
           <template slot="index" slot-scope="{ data }">
@@ -118,48 +116,6 @@
         <pagination-vue :current-page.sync="currentPage" :page-size.sync="pageSize" :total="pageTotal" @getList="taskSelect" />
       </template>
     </base-layout>
-    <!-- 修改对话框 -->
-    <el-dialog :title="title" :visible.sync="addDialogFormVisible" width="30%" @closed="closeDialog('newFormRef')">
-      <el-row :gutter="15">
-        <el-form ref="newFormRef" :rules="rules" :model="addForm">
-          <el-col :span="22">
-            <el-form-item prop="courseDay" label="课程日期：" label-width="95px">
-              <el-input v-model="addForm.courseDay" disabled :maxlength="20" placeholder="请选择课程日期" clearable :style="{width: '100%'}" />
-            </el-form-item>
-            <el-form-item prop="courseInterval" label="课程时间：" label-width="95px">
-              <el-time-picker
-                v-model="addForm.courseInterval"
-                :format="'HH:mm:ss'"
-                value-format="HH:mm:ss"
-                is-range
-                range-separator="至"
-                start-placeholder="开始时间"
-                end-placeholder="结束时间"
-                placeholder="请选择课程起止时间"
-                clearable
-                :style="{width: '100%'}"
-                @change="lg"
-              />
-            </el-form-item>
-            <el-form-item prop="courseSite" label="课程地点：" label-width="95px">
-              <el-input v-model="addForm.courseSite" :maxlength="20" placeholder="请输入课程地点" clearable :style="{width: '100%'}" />
-            </el-form-item>
-            <el-form-item prop="courseTeacherId" label="授课教师：" label-width="95px">
-              <el-select v-model="addForm.courseTeacherId" placeholder="请选择授课教师" clearable :style="{width: '100%'}">
-                <el-option v-for="item in editTeacherOpt" :key="item.value" :label="item.label" :value="item.value" />
-              </el-select>
-            </el-form-item>
-            <el-form-item prop="courseLimit" label="课程人数：" label-width="95px">
-              <el-input v-model="addForm.courseLimit" :maxlength="20" placeholder="请输入课程人数" clearable :style="{width: '100%'}" />
-            </el-form-item>
-          </el-col>
-        </el-form>
-      </el-row>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="addDialogFormVisible = false">取消</el-button>
-        <el-button type="primary" @click="addAlumni">确定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -167,7 +123,7 @@
 import EmptyCom from '@/components/EmptyCom/index.vue'
 import PaginationVue from '@/components/Pagination/index.vue'
 import courseCardList from '@/views/unitManagement/components/courseCardList.vue'
-import { selectCourseScheduling, courseSchedulingAdd, courseSchedulingBatchAdd, courseSchedulingEdit, courseSchedulingDelete } from '@/api/courseScheduling'
+import { selectCourseScheduling } from '@/api/courseScheduling'
 import { selectCourse } from '@/api/systemSettings/courseOpt'
 import { selectUser } from '@/api/systemSettings/userOpt'
 import exportFile from '@/plugins/mixins/export'
@@ -195,6 +151,7 @@ export default {
       sourceList,
       teaList: [],
       courseList: [],
+      loading: false,
       dialogVisible: false,
       tableHeadConfig: [
         {
@@ -232,86 +189,37 @@ export default {
           width: 200
         },
         {
-          label: '课程日期',
+          label: '课时日期',
           value: 'courseDay',
           tooltip: true,
           width: 200
         },
         {
-          label: '课程时间',
+          label: '课时时间',
           columnType: 'slot',
           slotName: 'courseInterval',
           width: 200
         },
         {
-          label: '课程地点',
+          label: '课时地点',
           value: 'courseSite',
           tooltip: true,
           width: 200
         },
         {
-          label: '课程人数限制',
-          value: 'courseLimit',
-          tooltip: true,
-          width: 200
-        },
-        {
-          label: '课程选课状态',
-          columnType: 'slot',
-          slotName: 'courseStatus',
-          width: 200
-        },
-        {
-          label: '课程日说明',
+          label: '课时日说明',
           value: 'courseDayStr',
           tooltip: true,
           width: 200
-        },
-        {
-          label: '课程周说明',
-          value: 'courseWeekStr',
-          tooltip: true,
-          minWidth: 200
         }
       ],
       cardData: [],
-      addDialogFormVisible: false,
-      addForm: {
-        courseDay: null,
-        courseInterval: null,
-        courseSite: null,
-        courseTeacherId: null,
-        courseLimit: null
-      },
-      title: '',
-      rules: {
-        courseDay: [
-          { required: true, message: '该项不可为空', trigger: 'change' }
-        ],
-        courseInterval: [
-          { required: true, message: '该项不可为空', trigger: 'change' }
-        ],
-        courseSite: [
-          { required: true, message: '该项不可为空', trigger: 'change' }
-        ],
-        courseTeacherId: [
-          { required: true, message: '该项不可为空', trigger: 'change' }
-        ],
-        courseLimit: [
-          { required: true, message: '该项不可为空', trigger: 'change' }
-        ]
-      },
-      editTeacherOpt: [{
-        label: '张三',
-        value: '123563'
-      }],
       params: {
-        courseName: '',
-        teaId: '',
-        teaName: '',
+        courseId: null,
+        teaId: null,
         time: null,
-        createStartTime: null,
-        createEndTime: null
+        courseStartTimeSt: null,
+        courseStartTimeEd: null
       },
       paramsException: ['place', 'time'],
       fileList: []
@@ -322,30 +230,14 @@ export default {
   },
   watch: {
     'params.time'(val) {
+      console.log(val)
+
       if (val) {
-        this.formData.createStartTime = val[0] + ' 00:00:00'
-        this.formData.createEndTime = val[1] + ' 23:59:59'
+        this.params.courseStartTimeSt = val[0] + ' 00:00:00'
+        this.params.courseStartTimeEd = val[1] + ' 23:59:59'
       } else {
-        this.formData.createStartTime = null
-        this.formData.createEndTime = null
-      }
-    },
-    isGrid(newValue, oldValue) {
-      if (newValue) {
-        this.params.pageSize = 12
-        this.pageSizes = [12]
-      } else {
-        this.params.pageSize = 10
-        this.pageSizes = [10, 20, 50, 100, 200]
-      }
-    },
-    multipleSelection(newval) {
-      if (newval?.length) {
-        this.checkAll = newval.length === this.params.pageSize
-        this.isIndeterminate = newval.length > 0 && newval.length < this.params.pageSize
-      } else {
-        this.checkAll = false
-        this.isIndeterminate = false
+        this.params.courseStartTimeSt = null
+        this.params.courseStartTimeEd = null
       }
     }
   },
@@ -386,36 +278,21 @@ export default {
     },
     taskSelect(type) {
       // this.$startLoading('inhert_main')
+      if (type) {
+        this.isGrid ? (this.isGrid = false) : this.isGrid
+      }
       this.loading = true
       // selectDataByHeaderSearch
-      type ? (this.currentPage = 1) : null
+      // type ? (this.currentPage = 1) : null
       const data = { ...this.params, page: this.currentPage, pageSize: this.pageSize, time: null }
       delete data.time
-      delete data.teaId
+      // delete data.teaId
       selectCourseScheduling(data).then((res) => {
         this.tableData = res.data.records
         this.pageTotal = +res.data.total
         // this.$closeLoading('inhert_main')
         this.loading = false
       })
-    },
-    sortChange(column) {
-      const { prop, order } = column
-      let orderName = prop && prop.length ? prop : 'number'
-      let orderType = 'desc'
-      if (order?.length) {
-        orderType = order === 'ascending' ? 'asc' : 'desc'
-      } else {
-        orderName = 'number'
-      }
-      this.params = {
-        ...this.params,
-        orderType,
-        orderName
-      }
-    },
-    lg() {
-      console.log(this.addForm.courseInterval)
     },
     submitUpload() {
       this.$refs.upload.submit()
@@ -426,33 +303,17 @@ export default {
     handlePreview(file) {
       console.log(file)
     },
-    addAlumni() {
-      this.$refs.newFormRef.validate(valid => {
-        if (valid) {
-          const method = editAlumniType
-          const message = '强制修改成功'
-
-          method({ ...this.addForm, addName: this.userId }).then((res) => {
-            if (res.result) {
-              this.addDialogFormVisible = false
-              this.$message.success(message)
-              this.taskSelect()
-            }
-          })
-        }
-      })
-    },
     handleSelectionChange(val) {
       console.log(val)
       this.multipleSelection = val
     },
     resetForm(formName) {
-      this.params.province = null
-      this.params.city = null
-      this.params.createDate = null
-      this.params.createDateEnd = null
+      this.params.courseId = null
+      this.params.teaId = null
+      this.params.courseStartTimeSt = null
+      this.params.courseStartTimeEd = null
       this.$refs[formName].resetFields()
-      this.getLabel()
+      this.taskSelect()
     },
     lookUnit(row) {
       console.log(row)

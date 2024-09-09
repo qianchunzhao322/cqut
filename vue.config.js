@@ -6,7 +6,7 @@ function resolve(dir) {
   return path.join(__dirname, dir)
 }
 
-const name = defaultSettings.title || '天津大学校友人才数据服务平台' // page title
+const name = defaultSettings.title || '重庆理工大学选课数据平台' // page title
 
 // If your port is set to 80,
 // use administrator privileges to execute the command line.

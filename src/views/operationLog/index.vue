@@ -5,19 +5,18 @@
         <el-row :gutter="15">
           <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="100px" class="demo_ruleForm">
             <el-col :span="5">
-              <el-form-item label-width="75px" label="操作Id" prop="optId">
-                <el-input v-model="formData.optId" placeholder="请输入操作ID" clearable :style="{width: '100%'}" @clear="taskSelect('isSelect')" @keydown.enter.native="taskSelect('isSelect')" />
+              <el-form-item label-width="75px" label="操作Id" prop="requestOptId">
+                <el-input v-model="formData.requestOptId" placeholder="请输入操作ID" clearable :style="{width: '100%'}" @clear="taskSelect('isSelect')" @keydown.enter.native="taskSelect('isSelect')" />
               </el-form-item>
             </el-col>
             <el-col :span="3">
-              <el-form-item label-width="55px" label="角色" prop="optRole">
-                <el-select v-model="formData.optRole" placeholder="全部" clearable :style="{width: '100%'}" @clear="taskSelect('isSelect')">
+              <el-form-item label-width="55px" label="角色" prop="requestRole">
+                <el-select v-model="formData.requestRole" placeholder="全部" clearable :style="{width: '100%'}" @clear="taskSelect('isSelect')">
                   <el-option
                     v-for="(item, index) in roleOptions"
                     :key="index"
                     :label="item.label"
                     :value="item.value"
-                    :disabled="item.disabled"
                   />
                 </el-select>
               </el-form-item>
@@ -25,7 +24,7 @@
             <el-col :span="3">
               <el-form-item label-width="95px" label="操作状态" prop="optRes">
                 <el-switch
-                  v-model="formData.optRes"
+                  v-model="formData.requestRes"
                   active-color="#13ce66"
                   inactive-color="#ff4949"
                 />
@@ -34,7 +33,7 @@
             <el-col :span="7">
               <el-form-item label="操作时间" prop="optTime">
                 <el-date-picker
-                  v-model="formData.optTime"
+                  v-model="formData.time"
                   type="daterange"
                   format="yyyy-MM-dd"
                   value-format="yyyy-MM-dd"
@@ -83,12 +82,10 @@
 <script>
 import PaginationVue from '@/components/Pagination/index.vue'
 import { selectOptLog } from '@/api/operationLog'
-import EmptyCom from '@/components/EmptyCom'
 export default {
   name: 'OperationLogIndex',
   components: {
-    PaginationVue,
-    EmptyCom
+    PaginationVue
   },
   data() {
     return {
@@ -108,45 +105,49 @@ export default {
         },
         {
           label: '操作ID',
-          value: 'optId',
+          value: 'requestOptId',
+          tooltip: true
+        },
+        {
+          label: '操作人',
+          value: 'operator',
           tooltip: true
         },
         {
           label: '操作角色',
-          columnType: 'slot',
-          slotName: 'optRole',
+          value: 'requestRole',
           tooltip: true
         },
         {
           label: '请求接口',
-          value: 'optInterface',
+          value: 'description',
           tooltip: true
         },
         {
           label: '操作模块',
-          value: 'optModule',
+          value: 'requestMod',
           tooltip: true
         },
         {
           label: '响应',
           columnType: 'slot',
-          slotName: 'optRes',
+          slotName: 'requestRes',
           tooltip: true
         },
         {
           label: '操作时间',
-          value: 'optTime',
+          value: 'createTime',
           tooltip: true,
           sortable: true
         }
       ],
       formData: {
-        optId: null,
-        optRole: null,
-        optRes: false,
+        requestOptId: null,
+        requestRole: null,
+        requestRes: true,
         time: null,
-        startTime: null,
-        endTime: null
+        createStartTime: null,
+        createEndTime: null
       },
       rules: {
         optId: [],
@@ -156,13 +157,13 @@ export default {
       tableData: [],
       roleOptions: [{
         'label': '管理员',
-        'value': 1
+        'value': '管理员'
       }, {
         'label': '用户',
-        'value': 2
+        'value': '学生'
       }, {
         'label': '教师',
-        'value': 3
+        'value': '教师'
       }],
       currentPage: 1,
       pageSize: 20,
@@ -173,11 +174,11 @@ export default {
   watch: {
     'formData.time'(val) {
       if (val && val.length === 2) {
-        this.formData.startTime = val[0] + ' 00:00:00'
-        this.formData.endTime = val[1] + ' 23:59:59'
+        this.formData.createStartTime = val[0] + ' 00:00:00'
+        this.formData.createEndTime = val[1] + ' 23:59:59'
       } else {
-        this.formData.startTime = null
-        this.formData.endTime = null
+        this.formData.createStartTime = null
+        this.formData.createEndTime = null
       }
     }
   },
@@ -189,53 +190,32 @@ export default {
   methods: {
     // 初始化
     init() {
-      this.taskSelect1()
-    },
-    // 任务-条件搜索
-    taskSelect1() {
-      this.tableData = [{
-        optId: '1111111111',
-        optRole: '1',
-        optInterface: 'add',
-        optModule: '学生管理',
-        optRes: 1,
-        optTime: '2024/7/7-19:33:33'
-      }, {
-        optId: '1111111111',
-        optRole: '2',
-        optInterface: 'add',
-        optModule: '学生管理',
-        optRes: 1,
-        optTime: '2024/7/7-19:33:33'
-      }, {
-        optId: '1111111111',
-        optRole: '3',
-        optInterface: 'add',
-        optMoudle: '学生管理',
-        optRes: 2,
-        optTime: '2024/7/7-19:33:33'
-      }]
+      this.taskSelect()
     },
     taskSelect(type) {
       this.$startLoading('inhert_main')
       // selectDataByHeaderSearch
       type ? (this.currentPage = 1) : null
       const params = { ...this.formData, page: this.currentPage, pageSize: this.pageSize, time: null }
+      delete params.time
+      params.requestRes ? params.requestRes = 200 : params.requestRes = 400
       selectOptLog(params).then((res) => {
-        this.tableData = res.data
-        this.pageTotal = +res.total
-        this.$closeLoading('inhert_main')
+        if (res.code === 200) {
+          this.tableData = res.data.records
+          this.pageTotal = +res.data.total
+          this.$closeLoading('inhert_main')
+        }
       })
     },
     // 重置按钮事件
     taskOptionsReset() {
       // $refs['elForm'].resetFields()重置后搜索接口参数有问题不清空
-      this.formData.user = null
-      this.formData.status = null
-      this.formData.phone = null
+      this.formData.requestOptId = null
+      this.formData.requestRole = null
+      this.formData.requestRes = true
       this.formData.time = null
-      this.formData.startTime = null
-      this.formData.endTime = null
+      this.formData.createStartTime = null
+      this.formData.createEndTime = null
       this.taskSelect()
     }
   }

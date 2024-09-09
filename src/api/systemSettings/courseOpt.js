@@ -24,7 +24,18 @@ export function editCourse(params) {
 export function deleteCourse(params) {
   return request({
     url: `/course?id=${params}`,
-    method: 'delete',
-    params
+    method: 'delete'
+  })
+}
+export function turnCourseStatus(id, status) {
+  return request({
+    url: `/course/courseStatus?id=${id}&courseStatus=${status}`,
+    method: 'put'
+  })
+}
+export function getCourseById(params) {
+  return request({
+    url: `/course/getByCourseId?id=${params}`,
+    method: 'get'
   })
 }

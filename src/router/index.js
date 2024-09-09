@@ -233,7 +233,7 @@ export const asyncRoutes = [
   },
   // 教师端路由
   {
-    path: '/teacherCourseToday',
+    path: '/',
     component: Layout,
     meta: {
       roles: ['2']
@@ -244,21 +244,13 @@ export const asyncRoutes = [
         name: 'TeacherCourseTodayIndex',
         component: () => import('@/views/teacherCourseToday/index'),
         meta: { title: '今日课程', icon: 'taskCenter' }
-      }
-    ]
-  },
-  {
-    path: '/teacherCourseCenter',
-    component: Layout,
-    meta: {
-      roles: ['2']
-    },
-    children: [
+      },
       {
-        path: 'index',
+        path: '/teacherCourseToday/detail',
         name: 'TeacherCourseCenterIndex',
         component: () => import('@/views/teacherCourseCenter/index'),
-        meta: { title: '选课学生管理', icon: 'user' }
+        meta: { title: '学生管理', icon: 'user' },
+        hidden: true
       }
     ]
   },

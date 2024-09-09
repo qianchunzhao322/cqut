@@ -22,16 +22,15 @@
 </template>
 
 <script>
-import EmptyCom from '@/components/EmptyCom/index.vue'
 import PaginationVue from '@/components/Pagination/index.vue'
+import { getCourseEvaluate } from '@/api/courseScheduling'
 export default {
   name: 'Evaluate',
   components: {
-    EmptyCom,
     PaginationVue
   },
   props: {
-    str: {
+    message: {
       type: String,
       default: ''
     }
@@ -56,36 +55,29 @@ export default {
         tooltip: true
       },
       {
-        label: '学生姓名',
-        value: 'stuName',
-        width: '100px',
-        tooltip: true
-      },
-      {
-        label: '教师评分',
-        value: 'courseScore',
+        label: '课程评分',
+        value: 'evaluateScore',
         width: '100px',
         tooltip: true
       }, {
-        label: '意见',
-        value: 'courseAdvice',
+        label: '课程意见',
+        value: 'evaluateContext',
         tooltip: true
       }],
-      tableData: [{
-        stuId: '344',
-        stuName: '344',
-        courseScore: '94',
-        courseAdvice: '是法律观念垃圾是法律观念垃圾是法律观念垃圾'
-      }]
+      tableData: []
     }
   },
-  computed: {
-    list() {
-      if (this.str?.length) {
-        return this.str.split(',')
-      } else {
-        return []
-      }
+  mounted() {
+    this.$nextTick(() => { this.taskSelect() })
+  },
+  methods: {
+    taskSelect() {
+      getCourseEvaluate({ courseId: this.message, page: this.currentPage, pageSize: this.pageSize }).then((res) => {
+        if (res.code === 200) {
+          this.tableData = res.data.records
+          this.pageTotal = +res.data.total
+        }
+      })
     }
   }
 }

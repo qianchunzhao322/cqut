@@ -25,7 +25,7 @@ service.interceptors.request.use(
       // let each request carry token
       // ['X-Token'] is a custom headers key
       // please modify it according to the actual situation
-      config.headers['X-Token'] = getToken()
+      config.headers['Access-Token'] = getToken()
     }
     return config
   },
@@ -53,6 +53,12 @@ service.interceptors.response.use(
 
     // if the custom code is not 20000, it is judged as an error.
     if (res.code !== 200) {
+      if (res.code === 409) {
+        return res
+      }
+      if (res.code === 400 && res.data === 'Please close the course optional, then update the course') {
+        return res
+      }
       Message({
         message: res.msg || 'Error',
         type: 'error',

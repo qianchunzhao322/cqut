@@ -109,7 +109,7 @@
           <div class="form_head">
             <div class="head_left">
               <img src="../../assets/unitManagement/head_left.png" alt="">
-              <div class="form_head_title">配置课时</div>
+              <div class="form_head_title">配置课时 -- {{ courseName }}</div>
             </div>
             <el-button type="text" @click="showEditMainProducts"><i
               class="iconfont icon-a-bianzu182"
@@ -121,7 +121,7 @@
         </div>
       </template>
     </base-layout>
-    <addMainProduct ref="addMainProductRef" :course-id="courseId" @update="reset" />
+    <addMainProduct ref="addMainProductRef" :course-name="courseName" :course-id="courseId" @update="reset" />
   </div>
 </template>
 
@@ -169,7 +169,7 @@ export default {
       this.courseName = courseName
       this.getCourseDetail(courseName)
       this.getMajor()
-      this.getCourseScheduling()
+      this.getCourseScheduling(courseName)
     }
   },
   methods: {
@@ -190,9 +190,8 @@ export default {
         })
       })
     },
-    getCourseScheduling(type) {
-      type ? (this.currentPage = 1) : null
-      const data = { page: 1, pageSize: 100 }
+    getCourseScheduling(courseName) {
+      const data = { courseName, page: 1, pageSize: 100 }
       selectCourseScheduling(data).then((res) => {
         // this.tableData = res.data.records
         this.mainProductsList = []
@@ -207,19 +206,12 @@ export default {
       courseSchedulingDelete(data).then((res) => {
         if (res.code === 200) {
           this.$message.success('课时信息删除成功')
-          this.getCourseScheduling()
+          this.getCourseScheduling(this.courseName)
         }
       })
     },
     reset() {
-      this.getCourseScheduling()
-    },
-    changeUnitType(value, isClear = true) {
-      isClear && this.$set(this.ruleForm, 'label', '')
-      this.getLabel({
-        type: value,
-        belong: 2
-      })
+      this.getCourseScheduling(this.courseName)
     },
     updateCourse() {
       editCourse({ ...this.ruleForm }).then((res) => {
@@ -229,57 +221,11 @@ export default {
         }
       })
     },
-    removeOtherName(index) {
-      if (this.ruleForm.otherNames.length === 1) {
-        this.ruleForm.otherNames = ['']
-      } else {
-        this.ruleForm.otherNames.splice(index, 1)
-      }
-    },
-    addOtherName() {
-      if (this.ruleForm.otherNames.length >= 3) {
-        this.$message.warning('最多添加三个别称')
-      } else {
-        this.ruleForm.otherNames.push('')
-      }
-    },
-    getCompanyProductById(id) {
-      selectCompanyProductById(id).then((res) => {
-        this.mainProductsList = res.data
-      })
-    },
     cancelUpdate() {
       // this.$router.replace({
       // 	path: '/unitManagement/index'
       // })
       this.$router.go(-1)
-    },
-    updateUnit() {
-      this.$refs.ruleForm.validate((valid) => {
-        if (valid) {
-          const params = {
-            ...this.ruleForm,
-            province: this.ruleForm.place[0] || '',
-            city: this.ruleForm.place[1] || ''
-            // otherNames: this.otherNames
-          }
-          delete this.ruleForm.place
-          Promise.all([
-            updateCompany(params),
-            updateProduct({
-              id: this.id,
-              products: this.mainProductsList
-            })
-          ]).then((res) => {
-            const { result: result1 } = res[0]
-            const { result: result2 } = res[1]
-            if (result1 && result2) {
-              this.$message.success('更新成功')
-              this.cancelUpdate()
-            }
-          })
-        }
-      })
     },
     showEditMainProducts() {
       this.$refs.addMainProductRef.showDialog()

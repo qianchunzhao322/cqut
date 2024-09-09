@@ -4,10 +4,9 @@
       <template slot="main">
         <div class="contorl_container">
           <div class="contorl_title">课程成绩列表</div>
-          <div class="contorl_btns">
-          </div>
+          <div class="contorl_btns" />
         </div>
-        <Etable height="100%" :table-head-config="tableHeadConfig" :table-load-data="tableData" :list-loading="loading" align="left">
+        <Etable height="100%" :table-head-config="choosedTableHeadConfig" :table-load-data="choosedTableData" :list-loading="loading" align="left">
           <template slot="index" slot-scope="{ data }">
             <span>{{ data.$index + 1 }}</span>
           </template>
@@ -19,7 +18,7 @@
 </template>
 
 <script>
-import { selectIndustryType, addIndustryType, editIndustryType, deleteIndustryType } from '@/api/systemSettings/courseOpt'
+import { getMyCourse } from '@/api/studentCourseOpt'
 import { mapGetters } from 'vuex'
 export default {
   name: 'Grade',
@@ -28,37 +27,36 @@ export default {
   data() {
     return {
       loading: false,
-      tableHeadConfig: [
+      choosedTableHeadConfig: [
         {
           label: '序号',
           columnType: 'slot',
           slotName: 'index',
           width: 60,
-          tooltip: true
-        },
-        {
-          label: '课程编号',
-          value: 'courseId',
-          tooltip: true
+          tooltip: true,
+          fixed: 'left'
         },
         {
           label: '课程名称',
           value: 'courseName',
-          tooltip: true
+          tooltip: true,
+          fixed: 'left',
+          width: 160
         },
         {
-          label: '课程介绍',
-          value: 'courseStr',
-          tooltip: true
+          label: '课程编号',
+          value: 'courseId',
+          tooltip: true,
+          width: 160
         },
         {
           label: '课程成绩',
-          value: 'courseGrade',
-          tooltip: true
-        },
-        
+          value: 'courseScore',
+          tooltip: true,
+          width: 90
+        }
       ],
-      tableData: [],
+      choosedTableData: []
     }
   },
   computed: {
@@ -71,28 +69,17 @@ export default {
   },
   methods: {
     init() {
-      this.taskSelect1()
+      this.getMy()
     },
-    taskSelect1() {
-      this.tableData = [{
-        courseId: '123524',
-        courseName: '光信息科学与技术',
-        courseGrade: '100',
-        courseStr: '阿道夫了法律上地方案例的房间啊',
-      }]
-    },
-    // 任务-条件搜索
-    taskSelect(type) {
+    getMy() {
       this.$startLoading('inhert_main')
-      // selectDataByHeaderSearch
-      type ? (this.currentPage = 1) : null
-      const params = { ...this.formData, page: this.currentPage, pageSize: this.pageSize, time: null }
-      selectIndustryType(params).then((res) => {
-        this.tableData = res.data
-        this.pageTotal = +res.total
+      getMyCourse({ page: 1, pageSize: 20 }).then((res) => {
+        if (res.code === 200) {
+          this.choosedTableData = res.data.records
+        }
         this.$closeLoading('inhert_main')
       })
-    },
+    }
   }
 }
 </script>

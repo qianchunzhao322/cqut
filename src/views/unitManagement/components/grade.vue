@@ -22,16 +22,15 @@
 </template>
 
 <script>
-import EmptyCom from '@/components/EmptyCom/index.vue'
+import { getCourseGrade } from '@/api/courseScheduling'
 import PaginationVue from '@/components/Pagination/index.vue'
 export default {
   name: 'Grade',
   components: {
-    EmptyCom,
     PaginationVue
   },
   props: {
-    str: {
+    message: {
       type: String,
       default: ''
     }
@@ -64,20 +63,22 @@ export default {
         value: 'courseScore',
         tooltip: true
       }],
-      tableData: [{
-        stuId: '344',
-        stuName: '344',
-        courseScore: '344'
-      }]
+      tableData: []
     }
   },
   computed: {
-    list() {
-      if (this.str?.length) {
-        return this.str.split(',')
-      } else {
-        return []
-      }
+  },
+  mounted() {
+    this.$nextTick(() => { this.taskSelect() })
+  },
+  methods: {
+    taskSelect() {
+      getCourseGrade({ courseId: this.message, page: this.currentPage, pageSize: this.pageSize }).then((res) => {
+        if (res.code === 200) {
+          this.tableData = res.data.records
+          this.pageTotal = +res.data.total
+        }
+      })
     }
   }
 }

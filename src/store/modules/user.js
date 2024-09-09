@@ -1,5 +1,5 @@
 import { login, logout, getInfo, resetInfo, resetPwd } from '@/api/user'
-import { getToken, setToken, removeToken, setUserInfo, removeUserInfo, getUserInfo } from '@/utils/auth'
+import { getToken, setToken, removeToken, setUserRealId, setUserInfo, removeUserInfo, getUserInfo } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
@@ -27,6 +27,9 @@ const mutations = {
   },
   SET_USERID: (state, id) => {
     state.userId = id
+  },
+  SET_USERREALID: (state, realId) => {
+    state.userRealId = realId
   },
   SET_NAME: (state, name) => {
     state.name = name
@@ -65,7 +68,9 @@ const actions = {
           commit('SET_USER', data)
           commit('SET_NAME', data.realName)
           commit('SET_USERID', data.id)
+          commit('SET_USERREALID', data.userId)
           commit('SET_TOKEN', data.token)
+          setUserRealId(data.userId)
           setToken(data.token)
           resolve(response)
         }
@@ -80,12 +85,11 @@ const actions = {
     return new Promise((resolve, reject) => {
       const user = getUserInfo()
       console.log('user', user)
-
       commit('SET_NAME', user.realName)
       commit('SET_USER', user)
       commit('SET_USERID', user.id)
+      commit('SET_USERREALID', user.userId)
       commit('SET_ROLES', [user.permissionCode])
-
       setUserInfo(user)
       resolve(user)
     })

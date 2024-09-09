@@ -28,6 +28,10 @@ export function removeUserInfo() {
   return Cookies.remove(UserInfo)
 }
 
+export function setUserRealId(id) {
+  return Cookies.set('realId', id)
+}
+
 export function setThemeData() {
   return getTheme().then((res) => {
     if (res.result) {

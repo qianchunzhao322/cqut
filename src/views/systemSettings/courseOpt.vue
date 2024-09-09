@@ -65,6 +65,14 @@
           <template slot="index" slot-scope="{ data }">
             <span>{{ data.$index + 1 }}</span>
           </template>
+          <template slot="courseStatus" slot-scope="{ data }">
+            <el-switch
+              v-model="data.row.courseStatus"
+              active-text="开放"
+              inactive-text="禁止"
+              @change="turnStatus(data.row)"
+            />
+          </template>
           <template slot="courseTarget" slot-scope="{ data }">
             <el-select
               v-model="data.row.courseTarget"
@@ -153,7 +161,7 @@
 <script>
 import PaginationVue from '@/components/Pagination/index.vue'
 import { selectMajor } from '@/api/systemSettings/majorOpt'
-import { selectCourse, addCourse, editCourse, deleteCourse } from '@/api/systemSettings/courseOpt'
+import { selectCourse, addCourse, editCourse, deleteCourse, turnCourseStatus } from '@/api/systemSettings/courseOpt'
 import { mapGetters } from 'vuex'
 export default {
   name: 'CouseOpt',
@@ -182,8 +190,13 @@ export default {
           tooltip: true
         },
         {
-          label: '上课地点',
-          value: 'courseSite',
+          label: '课程人数限制',
+          value: 'courseLimit',
+          tooltip: true
+        },
+        {
+          label: '课时要求',
+          value: 'courseHours',
           tooltip: true
         },
         {
@@ -197,6 +210,12 @@ export default {
           // tooltip: true
           columnType: 'slot',
           slotName: 'courseTarget'
+        },
+        {
+          label: '开放选课状态',
+          columnType: 'slot',
+          slotName: 'courseStatus',
+          width: 200
         },
         {
           width: 150,
@@ -278,7 +297,8 @@ export default {
         courseHours: '',
         courseLimit: '',
         courseTarget: [],
-        courseStr: ''
+        courseStr: '',
+        courseStatus: null
       }
       this.title = '添加课程'
       this.addDialogFormVisible = true
@@ -340,6 +360,14 @@ export default {
       this.multipleSelection = val
       console.log(this.multipleSelection)
     },
+    turnStatus(data) {
+      turnCourseStatus(data.id, data.courseStatus).then((res) => {
+        if (res.code === 200) {
+          this.$message.success('课程待选状态修改成功')
+          this.taskSelect()
+        }
+      })
+    },
     // addAlumni
     addIndustryType() {
       this.$refs.newFormRef.validate((valid) => {
@@ -354,6 +382,9 @@ export default {
             message = '添加成功'
           }
           method({ ...this.addForm }).then((res) => {
+            if (res.data === 'Please close the course optional, then update the course') {
+              this.$message.warning('已发布的课程禁止修改信息')
+            }
             if (res.code === 200) {
               this.addDialogFormVisible = false
               this.$message.success(message)
@@ -371,13 +402,6 @@ export default {
       }
       this.title = '修改课程信息'
       this.addDialogFormVisible = true
-    },
-    // editAlumni
-    editIndustryType() {
-      this.editDialogFormVisible = false
-      editCourse({ label: this.editForm.type, id: this.editTemp.id }).then((res) => {
-        this.taskSelect()
-      })
     },
     // 表格-删除
     del(row) {

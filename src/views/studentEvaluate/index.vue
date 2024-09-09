@@ -6,30 +6,35 @@
     <base-layout>
       <template slot="main">
         <div class="contorl_container">
-          <div class="contorl_title">在线教评</div>
+          <div class="contorl_title">课程教评</div>
           <div class="contorl_btns">
             <el-button type="text" style="color: rgb(80, 160, 255);" @click="submit('ruleForm')">提交</el-button>
           </div>
         </div>
-        <el-row v-for="(item, index) in formList" :key="index" :gutter="15">
-          <el-form ref="ruleForm" :rules="rules" label-width="80px" :model="formData">
+        <el-form v-for="(item, index) in formList" :key="index" ref="ruleForm" :rules="rules" label-width="80px" :model="item">
+          <el-row :gutter="15">
+            <el-col :span="4">
+              <el-form-item label="课程ID：" prop="courseId">
+                <el-input v-model="item.courseId" :style="{width: '100%'}" disabled placeholder="课程" />
+              </el-form-item>
+            </el-col>
             <el-col :span="5">
-              <el-form-item label="教师姓名" prop="teacherName">
-                <el-input v-model="item.teacherName" :style="{width: '100%'}" disabled placeholder="姓名" />
+              <el-form-item label="课程名：" prop="courseName">
+                <el-input v-model="item.courseName" :style="{width: '100%'}" disabled placeholder="课程名" />
               </el-form-item>
             </el-col>
             <el-col :span="4">
-              <el-form-item label="教师评分" prop="score">
-                <el-input v-model="item.score" :style="{width: '100%'}" placeholder="评分" />
+              <el-form-item label="评分：" prop="evaluateScore">
+                <el-input v-model="item.evaluateScore" :style="{width: '100%'}" placeholder="评分" />
               </el-form-item>
             </el-col>
-            <el-col :span="12">
-              <el-form-item label="教师评价" prop="evaluate">
-                <el-input v-model="item.evaluate" :style="{width: '100%'}" placeholder="评价" />
+            <el-col :span="10">
+              <el-form-item label="评价：" prop="evaluateContext">
+                <el-input v-model="item.evaluateContext" :style="{width: '100%'}" placeholder="评价" />
               </el-form-item>
             </el-col>
-          </el-form>
-        </el-row>
+          </el-row>
+        </el-form>
       </template>
     </base-layout>
 
@@ -37,7 +42,9 @@
 </template>
 
 <script>
-import { selectIndustryType, addIndustryType, editIndustryType, deleteIndustryType } from '@/api/systemSettings/courseOpt'
+import { addEvaluate } from '@/api/studentCourseOpt'
+import { selectCourse } from '@/api/systemSettings/courseOpt'
+import { getInfo } from '@/api/user'
 import { mapGetters } from 'vuex'
 export default {
   name: 'Index',
@@ -49,6 +56,8 @@ export default {
         return callback(new Error('评分不能为空'))
       }
       setTimeout(() => {
+        console.log(1)
+
         if (value > 100 || value < 0) {
           callback(new Error('必须在0-100之间'))
         } else {
@@ -57,23 +66,12 @@ export default {
       }, 500)
     }
     return {
-      formList: [
-        {
-          teacherName: '张三',
-          score: '',
-          evaluate: ''
-        },
-        {
-          teacherName: '李四',
-          score: '',
-          evaluate: ''
-        }
-      ],
+      formList: [],
       rules: {
-        evaluate: [
-          { required: true, message: '请填写教师评价', trigger: 'blur' }
+        evaluateContext: [
+          { required: true, message: '请填写课程评价', trigger: 'blur' }
         ],
-        score: [
+        evaluateScore: [
           { required: true, validator: checkScore, trigger: 'blur' }
         ]
       }
@@ -81,7 +79,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['userId'])
+    ...mapGetters(['userId', 'userInfo'])
   },
   mounted() {
     this.init()
@@ -90,37 +88,55 @@ export default {
   },
   methods: {
     init() {
-      this.taskSelect1()
+      this.getCourse()
+      this.getId()
+    },
+    getId() {
+      getInfo(this.userInfo.id).then((res) => {
+        this.userRealId = res.data.userId
+      })
+    },
+    getCourse() {
+      selectCourse({ page: 1, pageSize: 100 }).then((res) => {
+        res.data.records.forEach(e => {
+          var temp = {
+            courseId: e.courseId,
+            courseName: e.courseName,
+            evaluateContext: null,
+            evaluateScore: null
+          }
+          this.formList.push(temp)
+        })
+      })
     },
     submit(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          alert('submit!')
-        } else {
-          console.log('error submit!!')
-          return false
-        }
+      var state = true
+      this.$refs[formName].forEach(e => {
+        e.validate((valid) => {
+          if (valid) {
+            state = true
+          } else {
+            state = false
+          }
+        })
       })
-    },
-    taskSelect1() {
-      this.tableData = [{
-        courseId: '123524',
-        courseName: '光信息科学与技术',
-        courseGrade: '100',
-        courseStr: '阿道夫了法律上地方案例的房间啊'
-      }]
-    },
-    // 任务-条件搜索
-    taskSelect(type) {
-      this.$startLoading('inhert_main')
-      // selectDataByHeaderSearch
-      type ? (this.currentPage = 1) : null
-      const params = { ...this.formData, page: this.currentPage, pageSize: this.pageSize, time: null }
-      selectIndustryType(params).then((res) => {
-        this.tableData = res.data
-        this.pageTotal = +res.total
-        this.$closeLoading('inhert_main')
-      })
+      if (state) {
+        var data = []
+        this.formList.forEach(e => {
+          var temp = {
+            courseId: e.courseId,
+            evaluateContext: e.evaluateContext,
+            evaluateScore: +e.evaluateScore
+          }
+          data.push(temp)
+        })
+        const params = { stuId: this.userRealId, evaluateList: data }
+        addEvaluate(params).then((res) => {
+          if (res.code === 200) {
+            this.$message.success('课程评教成功！')
+          }
+        })
+      }
     }
   }
 }
