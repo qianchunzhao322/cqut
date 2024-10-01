@@ -38,21 +38,23 @@
           <div class="contorl_title">在册学生列表</div>
           <div class="contorl_btns">
             <el-button type="text" style="color: rgb(80, 160, 255);" @click="add">添加</el-button>
-            <el-button type="text" @click="showDerive(multipleSelection, 'alumni_database')">下载</el-button>
+            <el-button type="text" @click="showDerive(multipleSelection,'/user/userDownload', '学生信息.xlsx')">下载</el-button>
             <!-- <download /> -->
             <el-popover placement="top-end" width="400" trigger="click">
               <el-upload
                 ref="upload"
                 class="upload-demo"
-                action="https://jsonplaceholder.typicode.com/posts/"
-                :on-preview="handlePreview"
-                :on-remove="handleRemove"
+                action="#"
+                :limit="1"
+                accept=".xlsx, .xls"
+                :before-upload="beforeUpload"
+                :on-change="fileChange"
                 :file-list="fileList"
                 :auto-upload="false"
               >
                 <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
                 <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
-                <div slot="tip" class="el-upload__tip">只能上传xlxs文件，且不超过1M</div>
+                <div slot="tip" class="el-upload__tip">只能上传xlxs文件，且不超过2M</div>
               </el-upload>
               <el-button slot="reference" type="text" style="margin-left: 10px;">导入</el-button>
             </el-popover>
@@ -118,7 +120,7 @@ import PaginationVue from '@/components/Pagination/index.vue'
 import { selectUser, addUser, editUser, deleteUser, resetUser } from '@/api/systemSettings/userOpt'
 import { mapGetters } from 'vuex'
 import exportFile from '@/plugins/mixins/export'
-// import { download } from '@/api/taskCenter'
+import { upload } from '@/api/taskCenter'
 export default {
   name: 'StudentOpt',
   components: {
@@ -129,6 +131,7 @@ export default {
   ],
   data() {
     return {
+      limitNum: 1, // 上传excell时，同时允许上传的最大数
       fileList: [],
       loading: false,
       tableHeadConfig: [
@@ -260,14 +263,32 @@ export default {
       this.addDialogFormVisible = true
       this.closeDialog('newFormRef')
     },
+    // 文件状态改变时的钩子
+    fileChange(file, fileList) {
+      console.log(file.raw)
+      this.fileList.push(file.raw)
+      console.log(this.fileList)
+    },
     submitUpload() {
-      this.$refs.upload.submit()
+      if (this.fileList.length === 0) {
+        this.$message.warning('请上传文件')
+      } else {
+        const form = new FormData()
+        form.append('file', this.fileList[0])
+        upload('/user/userUpload', form).then(res => {
+          console.log(res)
+          this.taskSelect()
+        })
+      }
     },
-    handleRemove(file, fileList) {
-      console.log(file, fileList)
-    },
-    handlePreview(file) {
+    // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
+    beforeUpload(file) {
+      console.log('before upload')
       console.log(file)
+      const size = file.size / 1024 / 1024
+      if (size > 2) {
+        this.$message.warning('文件大小不得超过2M')
+      }
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
@@ -381,9 +402,7 @@ export default {
           // this.taskSelect()
         }
       })
-    },
-    download() {},
-    upload() {}
+    }
   }
 }
 </script>

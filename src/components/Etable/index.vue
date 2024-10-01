@@ -66,7 +66,7 @@
           :min-width="item.minWidth"
           :show-overflow-tooltip="item.tooltip"
         >
-          <template slot-scope="scope">{{ scope.row[item.value] ? scope.row[item.value] : defaultSettings.defaultTableEmptyText }}</template>
+          <template slot-scope="scope">{{ scope.row[item.value]||scope.row[item.value]===0 ? scope.row[item.value] : defaultSettings.defaultTableEmptyText }}</template>
         </el-table-column>
       </template>
     </el-table>

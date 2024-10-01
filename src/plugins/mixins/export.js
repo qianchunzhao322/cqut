@@ -1,7 +1,4 @@
 // 导出
-import { exportCompany } from '@/api/courseScheduling'
-import { exportClassmateWaitconfirm } from '@/api/alumniManage'
-import { exportClassmate } from '@/api/alumniManage/alumniDatabase'
 import { mapGetters } from 'vuex'
 import { download } from '@/api/taskCenter'
 export default {
@@ -10,18 +7,14 @@ export default {
   },
   methods: {
     // 导出
-    // type
-    // '0' 待确认 '1' 确认中 '3' 非校友库
-    // 'alumni_database' 校友库
-    // 'unit_database' 单位管理
-    showDerive(list, type) {
+    showDerive(list, url, fileName) {
       if (list?.length) {
-        this.down('请确定是否导出?', list, type)
+        this.down('请确定是否导出?', list, url, fileName)
       } else {
-        this.down('您未选择任何数据，将下载全部在册数据', list, type)
+        this.down('您未选择任何数据，将下载全部在册数据', list, url, fileName)
       }
     },
-    down(msg, list, type) {
+    down(msg, list, url, fileName) {
       this.$confirm(msg, '下载', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
@@ -29,33 +22,23 @@ export default {
         .then(() => {
           // 导出
           const data = {
-            ids: list.map((o) => o.id),
-            userName: this.name
+            ids: list.map((o) => o.id)
+            // userName: this.name
           }
-          switch (type) {
-            case '0':
-            case '1':
-            case '3':
-              exportClassmateWaitconfirm({ data, classify: type }).then((res) => {
-                this.$message.success('导出成功，请前往任务中心查看')
-                this.$refs.tableRef.clearSelection()
-              })
-              break
-            case 'alumni_database':
-              exportClassmate(data).then((res) => {
-                this.$message.success('导出成功，请前往任务中心查看')
-                this.$refs.tableRef.clearSelection()
-              })
-              break
-            case 'unit_database':
-              exportCompany(data).then((res) => {
-                this.$message.success('导出成功，请前往任务中心查看')
-                this.$refs.tableRef.clearSelection()
-              })
-              break
-            default:
-              break
-          }
+          download(url).then((res) => {
+            console.log(res)
+            const blob = new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+            const link = document.createElement('a')
+            link.style.display = 'none'
+            link.href = URL.createObjectURL(blob)
+            link.setAttribute('download', fileName)
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+          }).catch(error => {
+            this.$message.error('下载失败')
+            console.log(error)
+          })
           this.multipleSelection = []
         })
         .catch(() => {
