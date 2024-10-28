@@ -42,26 +42,28 @@
           <div class="contorl_title">课程列表</div>
           <div class="contorl_btns">
             <el-button type="text" style="color: rgb(80, 160, 255);" @click="add">添加</el-button>
-            <el-button type="text" @click="download">下载</el-button>
+            <el-button type="text" @click="showDerive(multipleSelection, 'get', '/course/courseDownload', '课程信息.xlsx')">下载</el-button>
             <el-popover placement="top-end" width="400" trigger="click">
               <el-upload
                 ref="upload"
                 class="upload-demo"
-                action="https://jsonplaceholder.typicode.com/posts/"
-                :on-preview="handlePreview"
-                :on-remove="handleRemove"
+                action="#"
+                :limit="1"
+                accept=".xlsx, .xls"
+                :before-upload="beforeUpload"
+                :on-change="fileChange"
                 :file-list="fileList"
                 :auto-upload="false"
               >
                 <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
                 <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
-                <div slot="tip" class="el-upload__tip">只能上传xlxs文件，且不超过1M</div>
+                <div slot="tip" class="el-upload__tip">只能上传xlxs文件，且不超过2M</div>
               </el-upload>
               <el-button slot="reference" type="text" style="margin-left: 10px;">导入</el-button>
             </el-popover>
           </div>
         </div>
-        <Etable selection height="100%" :table-head-config="tableHeadConfig" :table-load-data="tableData" :list-loading="loading" align="left" @selectLine="handleSelectionChange">
+        <Etable height="100%" :table-head-config="tableHeadConfig" :table-load-data="tableData" :list-loading="loading" align="left">
           <template slot="index" slot-scope="{ data }">
             <span>{{ data.$index + 1 }}</span>
           </template>
@@ -163,11 +165,16 @@ import PaginationVue from '@/components/Pagination/index.vue'
 import { selectMajor } from '@/api/systemSettings/majorOpt'
 import { selectCourse, addCourse, editCourse, deleteCourse, turnCourseStatus } from '@/api/systemSettings/courseOpt'
 import { mapGetters } from 'vuex'
+import exportFile from '@/plugins/mixins/export'
+import { upload } from '@/api/taskCenter'
 export default {
   name: 'CouseOpt',
   components: {
     PaginationVue
   },
+  mixins: [
+    exportFile
+  ],
   data() {
     return {
       loading: false,
@@ -266,7 +273,7 @@ export default {
         courseStr: ''
       },
       title: '',
-      fileList: null,
+      fileList: [],
       multipleSelection: []
     }
   },
@@ -304,17 +311,33 @@ export default {
       this.addDialogFormVisible = true
       this.closeDialog('newFormRef')
     },
+    // 文件状态改变时的钩子
+    fileChange(file, fileList) {
+      this.fileList.push(file.raw)
+    },
+    submitUpload() {
+      if (this.fileList.length === 0) {
+        this.$message.warning('请上传文件')
+      } else {
+        const form = new FormData()
+        form.append('file', this.fileList[0])
+        upload('/course/courseUpload', form).then(res => {
+          this.taskSelect()
+        })
+      }
+    },
+    // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
+    beforeUpload(file) {
+      const size = file.size / 1024 / 1024
+      if (size > 2) {
+        this.$message.warning('文件大小不得超过2M')
+      }
+    },
     closeDialog(name) {
       this.$refs[name].resetFields()
     },
-    submitUpload() {
-      this.$refs.upload.submit()
-    },
     handleRemove(file, fileList) {
       console.log(file, fileList)
-    },
-    handlePreview(file) {
-      console.log(file)
     },
     // 初始化
     init() {
@@ -355,10 +378,6 @@ export default {
       this.formData.createStartTime = null
       this.formData.createEndTime = null
       this.taskSelect()
-    },
-    handleSelectionChange(val) {
-      this.multipleSelection = val
-      console.log(this.multipleSelection)
     },
     turnStatus(data) {
       turnCourseStatus(data.id, data.courseStatus).then((res) => {
@@ -425,9 +444,7 @@ export default {
           this.taskSelect()
         }
       })
-    },
-    download() {},
-    upload() {}
+    }
   }
 }
 </script>

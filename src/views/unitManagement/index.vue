@@ -70,19 +70,21 @@
               <el-upload
                 ref="upload"
                 class="upload-demo"
-                action="https://jsonplaceholder.typicode.com/posts/"
-                :on-preview="handlePreview"
-                :on-remove="handleRemove"
+                action="#"
+                :limit="1"
+                accept=".xlsx, .xls"
+                :before-upload="beforeUpload"
+                :on-change="fileChange"
                 :file-list="fileList"
                 :auto-upload="false"
               >
                 <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
                 <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
-                <div slot="tip" class="el-upload__tip">只能上传xlxs文件，且不超过1M</div>
+                <div slot="tip" class="el-upload__tip">只能上传xlxs文件，且不超过2M</div>
               </el-upload>
               <el-button slot="reference" type="text" style="margin-left: 10px;">导入</el-button>
             </el-popover>
-            <el-button v-if="!isGrid" type="text" @click="showDerive(multipleSelection, 'unit_database')">导出</el-button>
+            <el-button v-if="!isGrid" type="text" @click="showDerive(multipleSelection, 'post','/courseScheduling/courseSchedulingDownload', '课时信息.xlsx', 'ks')">下载</el-button>
           </div>
         </div>
         <!-- 表格列表 -->
@@ -127,6 +129,7 @@ import { selectCourseScheduling } from '@/api/courseScheduling'
 import { selectCourse } from '@/api/systemSettings/courseOpt'
 import { selectUser } from '@/api/systemSettings/userOpt'
 import exportFile from '@/plugins/mixins/export'
+import { upload } from '@/api/taskCenter'
 import { sourceList } from '@/utils/dataOptions'
 import { mapGetters } from 'vuex'
 export default {
@@ -252,6 +255,28 @@ export default {
       this.getTeacher()
       this.taskSelect()
     },
+    // 文件状态改变时的钩子
+    fileChange(file, fileList) {
+      this.fileList.push(file.raw)
+    },
+    submitUpload() {
+      if (this.fileList.length === 0) {
+        this.$message.warning('请上传文件')
+      } else {
+        const form = new FormData()
+        form.append('file', this.fileList[0])
+        upload('/courseScheduling/courseSchedulingUpload', form).then(res => {
+          this.taskSelect()
+        })
+      }
+    },
+    // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
+    beforeUpload(file) {
+      const size = file.size / 1024 / 1024
+      if (size > 2) {
+        this.$message.warning('文件大小不得超过2M')
+      }
+    },
     getTeacher() {
       const params = { permissionCode: 2, page: 1, pageSize: 100 }
       selectUser(params).then((res) => {
@@ -293,9 +318,6 @@ export default {
         // this.$closeLoading('inhert_main')
         this.loading = false
       })
-    },
-    submitUpload() {
-      this.$refs.upload.submit()
     },
     handleRemove(file, fileList) {
       console.log(file, fileList)

@@ -1,11 +1,12 @@
 
 import wholeRequest from '@/utils/wholeRequest'
 
-export function download(url) {
+export function download(method, url, data) {
   return wholeRequest({
     url: url,
-    method: 'post',
-    responseType: 'blob'
+    method: method,
+    responseType: 'blob',
+    data: data
     // headers: {
     //   responseType: 'blob'
     // }

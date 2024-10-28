@@ -10,10 +10,10 @@
         <div class="contorl_container">
           <div class="contorl_title">该课时学生列表</div>
           <div class="contorl_btns">
-            <el-button type="text" @click="download">下载</el-button>
+            <el-button type="text" @click="showDerive(multipleSelection, 'post', '/courseScheduling/courseSchedulingDownload', '课时学生信息.xlsx')">下载</el-button>
           </div>
         </div>
-        <Etable selection height="100%" :table-head-config="tableHeadConfig" :table-load-data="tableData" :list-loading="loading" align="left" @selectLine="handleSelectionChange">
+        <Etable selection height="100%" :table-head-config="tableHeadConfig" :table-load-data="tableData" :list-loading="loading" align="left">
           <template slot="index" slot-scope="{ data }">
             <span>{{ data.$index + 1 }}</span>
           </template>
@@ -29,7 +29,7 @@
 <script>
 
 import PaginationVue from '@/components/Pagination/index.vue'
-import { download } from '@/api/taskCenter'
+import exportFile from '@/plugins/mixins/export'
 import { classStuPage } from '@/api/teaCourseOpt'
 
 export default {
@@ -37,6 +37,9 @@ export default {
   components: {
     PaginationVue
   },
+  mixins: [
+    exportFile
+  ],
   data() {
     return {
       loading: false,
@@ -78,10 +81,6 @@ export default {
   created() {
   },
   methods: {
-    handleSelectionChange(val) {
-      this.multipleSelection = val
-      console.log(this.multipleSelection)
-    },
     // 初始化
     init() {
       this.taskSelect()
@@ -102,8 +101,7 @@ export default {
     },
     goBack() {
       this.$router.go(-1)
-    },
-    download() {}
+    }
   }
 }
 </script>

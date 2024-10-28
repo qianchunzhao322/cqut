@@ -7,26 +7,38 @@ export default {
   },
   methods: {
     // 导出
-    showDerive(list, url, fileName) {
+    showDerive(list, method, url, fileName, role) {
       if (list?.length) {
-        this.down('请确定是否导出?', list, url, fileName)
+        this.down('请确定是否导出?', list, method, url, fileName, role)
       } else {
-        this.down('您未选择任何数据，将下载全部在册数据', list, url, fileName)
+        this.down('您未选择任何数据，将下载全部在册数据', list, method, url, fileName, role)
       }
     },
-    down(msg, list, url, fileName) {
+    down(msg, list, method, url, fileName, role) {
       this.$confirm(msg, '下载', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       })
         .then(() => {
           // 导出
-          const data = {
-            ids: list.map((o) => o.id)
-            // userName: this.name
+          var data = {}
+          if (role === 'ks') {
+            var classIdList = []
+            list.forEach(el => {
+              classIdList.push(el.id)
+            })
+            classIdList
           }
-          download(url).then((res) => {
-            console.log(res)
+          if (role === '2' || role === '3') {
+            var temp = []
+            list.forEach(el => {
+              temp.push(el.userId)
+            })
+            data.userIdList = temp
+            data.userRole = role
+          }
+          list.length ? data = null : data
+          download(method, url, classIdList || data).then((res) => {
             const blob = new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
             const link = document.createElement('a')
             link.style.display = 'none'

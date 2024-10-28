@@ -38,7 +38,7 @@
           <div class="contorl_title">在册学生列表</div>
           <div class="contorl_btns">
             <el-button type="text" style="color: rgb(80, 160, 255);" @click="add">添加</el-button>
-            <el-button type="text" @click="showDerive(multipleSelection,'/user/userDownload', '学生信息.xlsx')">下载</el-button>
+            <el-button type="text" @click="showDerive(multipleSelection, 'post', '/user/userDownload', '学生信息.xlsx', '3')">下载</el-button>
             <!-- <download /> -->
             <el-popover placement="top-end" width="400" trigger="click">
               <el-upload
@@ -265,9 +265,7 @@ export default {
     },
     // 文件状态改变时的钩子
     fileChange(file, fileList) {
-      console.log(file.raw)
       this.fileList.push(file.raw)
-      console.log(this.fileList)
     },
     submitUpload() {
       if (this.fileList.length === 0) {
@@ -276,15 +274,12 @@ export default {
         const form = new FormData()
         form.append('file', this.fileList[0])
         upload('/user/userUpload', form).then(res => {
-          console.log(res)
           this.taskSelect()
         })
       }
     },
     // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
     beforeUpload(file) {
-      console.log('before upload')
-      console.log(file)
       const size = file.size / 1024 / 1024
       if (size > 2) {
         this.$message.warning('文件大小不得超过2M')

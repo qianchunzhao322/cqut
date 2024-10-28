@@ -40,7 +40,7 @@
           <div class="contorl_title">在册教师列表</div>
           <div class="contorl_btns">
             <el-button type="text" style="color: rgb(80, 160, 255);" @click="add">添加</el-button>
-            <el-button type="text" @click="download">下载</el-button>
+            <el-button type="text" @click="showDerive(multipleSelection, 'post', '/user/userDownload', '教师信息.xlsx', '2')">下载</el-button>
             <el-popover placement="top-end" width="400" trigger="click">
               <el-upload
                 ref="upload"
@@ -114,11 +114,15 @@
 import PaginationVue from '@/components/Pagination/index.vue'
 import { selectUser, addUser, editUser, deleteUser, resetUser } from '@/api/systemSettings/userOpt'
 import { mapGetters } from 'vuex'
+import exportFile from '@/plugins/mixins/export'
 export default {
   name: 'TeacherOpt',
   components: {
     PaginationVue
   },
+  mixins: [
+    exportFile
+  ],
   data() {
     return {
       fileList: [],

@@ -38,6 +38,24 @@
           <div class="contorl_title">在册专业列表</div>
           <div class="contorl_btns">
             <el-button type="text" @click="add">添加</el-button>
+            <el-popover placement="top-end" width="400" trigger="click">
+              <el-upload
+                ref="upload"
+                class="upload-demo"
+                action="#"
+                :limit="1"
+                accept=".xlsx, .xls"
+                :before-upload="beforeUpload"
+                :on-change="fileChange"
+                :file-list="fileList"
+                :auto-upload="false"
+              >
+                <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+                <div slot="tip" class="el-upload__tip">只能上传xlxs文件，且不超过2M</div>
+              </el-upload>
+              <el-button slot="reference" type="text" style="margin-left: 10px;">导入</el-button>
+            </el-popover>
           </div>
         </div>
         <Etable height="100%" :table-head-config="tableHeadConfig" :table-load-data="tableData" :list-loading="loading" align="left">
@@ -84,6 +102,7 @@ import PaginationVue from '@/components/Pagination/index.vue'
 import { selectMajor, addMajor, editMajor, deleteMajor } from '@/api/systemSettings/majorOpt'
 import { selectAlumniType } from '@/api/systemSettings/userOpt'
 import { selectCompanyType } from '@/api/systemSettings/unitType'
+import { upload } from '@/api/taskCenter'
 import { mapGetters } from 'vuex'
 export default {
   name: 'MajorOpt',
@@ -123,6 +142,7 @@ export default {
           slotName: 'operation'
         }
       ],
+      fileList: [],
       formData: {
         majorName: null,
         time: null,
@@ -183,6 +203,28 @@ export default {
       this.title = '添加新专业'
       this.addDialogFormVisible = true
       this.closeDialog('newFormRef')
+    },
+    // 文件状态改变时的钩子
+    fileChange(file, fileList) {
+      this.fileList.push(file.raw)
+    },
+    submitUpload() {
+      if (this.fileList.length === 0) {
+        this.$message.warning('请上传文件')
+      } else {
+        const form = new FormData()
+        form.append('file', this.fileList[0])
+        upload('/major/majorUpload', form).then(res => {
+          this.taskSelect()
+        })
+      }
+    },
+    // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
+    beforeUpload(file) {
+      const size = file.size / 1024 / 1024
+      if (size > 2) {
+        this.$message.warning('文件大小不得超过2M')
+      }
     },
     closeDialog(name) {
       this.$refs[name].resetFields()

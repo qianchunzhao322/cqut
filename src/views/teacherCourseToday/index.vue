@@ -8,7 +8,7 @@
           <div class="aside_container">
             <div class="header">
               今日课时
-              <el-button v-show="courseList && courseList.length" style="position: absolute;top: 12px;right: 6px;" size="small" type="primary">下载列表</el-button>
+              <el-button v-show="courseList && courseList.length" style="position: absolute;top: 12px;right: 6px;" size="small" type="primary" @click="showDerive(multipleSelection, 'get', '/courseScheduling/todayClassDownload', '今日课程信息.xlsx')">下载列表</el-button>
             </div>
             <div class="cards">
               <div v-if="courseList && courseList.length" style="width: 100%; height: 100%;">
@@ -44,14 +44,19 @@
 // components
 import EmptyCom from '@/components/EmptyCom'
 import { getClassByDate } from '@/api/teaCourseOpt'
+import exportFile from '@/plugins/mixins/export'
 import moment from 'moment'
 export default {
   name: 'TeacherCourseTodayIndex',
   components: {
     EmptyCom
   },
+  mixins: [
+    exportFile
+  ],
   data() {
     return {
+      multipleSelection: [],
       calendarDate: null,
       loading: false,
       courseList: []
