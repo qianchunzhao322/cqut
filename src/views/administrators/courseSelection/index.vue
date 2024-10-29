@@ -122,9 +122,8 @@
 </template>
 
 <script>
-import EmptyCom from '@/components/EmptyCom/index.vue'
 import PaginationVue from '@/components/Pagination/index.vue'
-import courseCardList from '@/views/unitManagement/components/courseCardList.vue'
+import courseCardList from '@/views/administrators/courseSelection/components/courseCardList.vue'
 import { selectCourseScheduling } from '@/api/courseScheduling'
 import { selectCourse } from '@/api/systemSettings/courseOpt'
 import { selectUser } from '@/api/systemSettings/userOpt'
@@ -136,7 +135,6 @@ export default {
   name: 'UnitManagementIndex',
   components: {
     PaginationVue,
-    EmptyCom,
     courseCardList
   },
   mixins: [
@@ -360,8 +358,7 @@ export default {
           courseName
         }
       })
-    },
-    click() {}
+    }
   }
 }
 </script>

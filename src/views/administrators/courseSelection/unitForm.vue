@@ -8,7 +8,7 @@
         <div class="form_container">
           <div class="form_head">
             <div class="head_left">
-              <img src="../../assets/unitManagement/head_left.png" alt="">
+              <img src="~@/assets/unitManagement/head_left.png" alt="">
               <div class="form_head_title">课程基本信息</div>
             </div>
             <div class="btn">
@@ -108,7 +108,7 @@
         <div class="form_container">
           <div class="form_head">
             <div class="head_left">
-              <img src="../../assets/unitManagement/head_left.png" alt="">
+              <img src="~@/assets/unitManagement/head_left.png" alt="">
               <div class="form_head_title">配置课时 -- {{ courseName }}</div>
             </div>
             <el-button type="text" @click="showEditMainProducts"><i
@@ -129,7 +129,6 @@
 import { selectCourseScheduling, courseSchedulingDelete } from '@/api/courseScheduling'
 import { selectCourse, editCourse } from '@/api/systemSettings/courseOpt'
 import { selectMajor } from '@/api/systemSettings/majorOpt'
-import EmptyCom from '@/components/EmptyCom/index.vue'
 
 import mainProduct from './components/mainProduct.vue'
 import addMainProduct from './components/addMainProduct.vue'
@@ -140,7 +139,6 @@ import {
 export default {
   name: 'UnitForm',
   components: {
-    EmptyCom,
     mainProduct,
     addMainProduct
   },

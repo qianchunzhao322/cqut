@@ -192,7 +192,7 @@ export default {
             margin-bottom: 20px;
             width: 274px;
             height: 150px;
-            background-image: url('../../../assets/unitManagement/product_bg.png');
+            background-image: url('~@/assets/unitManagement/product_bg.png');
             background-repeat: no-repeat;
             background-size: cover;
             border: 1px solid #ecf0f8;
@@ -214,7 +214,7 @@ export default {
                 font-size: 14px;
             }
             &:hover{
-                background-image: url('../../../assets/unitManagement/product_bg_active.png');
+                background-image: url('~@/assets/unitManagement/product_bg_active.png');
                 .product_name{
                     font-weight: bold;
                 }

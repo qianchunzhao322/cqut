@@ -5,7 +5,6 @@ Vue.use(Router)
 
 /* Layout */
 import Layout from '@/layout'
-import Base from '@/layout/components/base.vue'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -79,19 +78,19 @@ export const asyncRoutes = [
         path: 'courseOpt',
         name: 'CourseOpt',
         meta: { title: '选退课程' },
-        component: () => import('@/views/studentCourse/courseOpt')
+        component: () => import('@/views/student/studentCourse/courseOpt')
       },
       {
         path: 'hoursOpt',
         name: 'HoursOpt',
         meta: { title: '选退课时' },
-        component: () => import('@/views/studentCourse/hoursOpt')
+        component: () => import('@/views/student/studentCourse/hoursOpt')
       },
       {
         path: 'grade',
         name: 'Grade',
         meta: { title: '课程成绩' },
-        component: () => import('@/views/studentCourse/grade')
+        component: () => import('@/views/student/studentCourse/grade')
       }
     ]
   },
@@ -110,7 +109,7 @@ export const asyncRoutes = [
         path: 'index',
         name: 'Index',
         meta: { title: '课程教评' },
-        component: () => import('@/views/studentEvaluate/index')
+        component: () => import('@/views/student/studentEvaluate/index')
       }
     ]
   },
@@ -125,7 +124,7 @@ export const asyncRoutes = [
       {
         path: 'studentOpt',
         name: 'StudentOpt',
-        component: () => import('@/views/systemSettings/studentOpt'),
+        component: () => import('@/views/administrators/userOpt/studentOpt'),
         meta: { title: '学生管理', icon: 'user' }
       }
     ]
@@ -140,7 +139,7 @@ export const asyncRoutes = [
       {
         path: 'teacherOpt',
         name: 'TeacherOpt',
-        component: () => import('@/views/systemSettings/teacherOpt'),
+        component: () => import('@/views/administrators/userOpt/teacherOpt'),
         meta: { title: '教师管理', icon: 'alumniManagement' }
       }
     ]
@@ -155,7 +154,7 @@ export const asyncRoutes = [
       {
         path: 'couseOpt',
         name: 'CouseOpt',
-        component: () => import('@/views/systemSettings/courseOpt'),
+        component: () => import('@/views/administrators/systemSettings/courseOpt'),
         meta: { title: '课程管理', icon: 'taskCenter' }
       }
     ]
@@ -172,21 +171,21 @@ export const asyncRoutes = [
       {
         path: 'index',
         name: 'courseSelectionIndex',
-        component: () => import('@/views/unitManagement/index'),
+        component: () => import('@/views/administrators/courseSelection/index'),
         meta: { title: '课时配置', isClose: true, icon: 'table' },
         hidden: true
       },
       {
         path: 'unitform',
         name: 'UnitForm',
-        component: () => import('@/views/unitManagement/unitForm'),
+        component: () => import('@/views/administrators/courseSelection/unitForm'),
         meta: { title: '编辑课时', isClose: true },
         hidden: true
       },
       {
         path: 'detail',
         name: 'UnitDetail',
-        component: () => import('@/views/unitManagement/unitDetail'),
+        component: () => import('@/views/administrators/courseSelection/unitDetail'),
         meta: { title: '课程详情', isClose: true },
         hidden: true
       }
@@ -205,13 +204,13 @@ export const asyncRoutes = [
       {
         path: 'majorOpt',
         name: 'MajorOpt',
-        component: () => import('@/views/systemSettings/majorOpt'),
+        component: () => import('@/views/administrators/systemSettings/majorOpt'),
         meta: { title: '专业管理' }
       },
       {
         path: 'index',
         name: 'SemesterResetIndex',
-        component: () => import('@/views/systemSettings/index'),
+        component: () => import('@/views/administrators/systemSettings/index'),
         meta: { title: '学期重置' }
       }
     ]
@@ -226,7 +225,7 @@ export const asyncRoutes = [
       {
         path: 'index',
         name: 'OperationLogIndex',
-        component: () => import('@/views/operationLog/index'),
+        component: () => import('@/views/administrators/operationLog/index'),
         meta: { title: '操作日志', icon: 'operationLog' }
       }
     ]
@@ -242,13 +241,13 @@ export const asyncRoutes = [
       {
         path: 'index',
         name: 'TeacherCourseTodayIndex',
-        component: () => import('@/views/teacherCourseToday/index'),
+        component: () => import('@/views/teacher/teacherCourseToday/index'),
         meta: { title: '今日课程', icon: 'taskCenter' }
       },
       {
         path: '/teacherCourseToday/detail',
         name: 'TeacherCourseCenterIndex',
-        component: () => import('@/views/teacherCourseCenter/index'),
+        component: () => import('@/views/teacher/teacherCourseCenter/index'),
         meta: { title: '学生管理', icon: 'user' },
         hidden: true
       }
@@ -264,7 +263,7 @@ export const asyncRoutes = [
       {
         path: 'index',
         name: 'TeacherGradeIndex',
-        component: () => import('@/views/teacherGrade/index'),
+        component: () => import('@/views/teacher/teacherGrade/index'),
         meta: { title: '成绩登记', icon: 'userManagement' }
       }
     ]
@@ -279,7 +278,7 @@ export const asyncRoutes = [
       {
         path: 'index',
         name: 'TnfoCenterIndex',
-        component: () => import('@/views/infoCenter/index'),
+        component: () => import('@/views/teacher/infoCenter/index'),
         meta: { title: '通知管理', icon: 'form' }
       }
     ]
