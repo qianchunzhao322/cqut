@@ -25,7 +25,7 @@ export default {
           if (role === 'ks') {
             var classIdList = []
             list.forEach(el => {
-              classIdList.push(el.id)
+              el.id ? classIdList.push(el.id) : classIdList.push(el)
             })
             classIdList
           }
@@ -39,14 +39,18 @@ export default {
           }
           list.length ? data = null : data
           download(method, url, classIdList || data).then((res) => {
-            const blob = new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-            const link = document.createElement('a')
-            link.style.display = 'none'
-            link.href = URL.createObjectURL(blob)
-            link.setAttribute('download', fileName)
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
+            if (res.code) {
+              this.$message.error(res.msg)
+            } else {
+              const blob = new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+              const link = document.createElement('a')
+              link.style.display = 'none'
+              link.href = URL.createObjectURL(blob)
+              link.setAttribute('download', fileName)
+              document.body.appendChild(link)
+              link.click()
+              document.body.removeChild(link)
+            }
           }).catch(error => {
             this.$message.error('下载失败')
             console.log(error)

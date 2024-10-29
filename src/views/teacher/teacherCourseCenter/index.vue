@@ -10,7 +10,7 @@
         <div class="contorl_container">
           <div class="contorl_title">该课时学生列表</div>
           <div class="contorl_btns">
-            <el-button type="text" @click="showDerive(multipleSelection, 'post', '/courseScheduling/courseSchedulingDownload', '课时学生信息.xlsx')">下载</el-button>
+            <el-button type="text" @click="showDerive(multipleSelection, 'get', url, '课时学生信息.xlsx')">下载</el-button>
           </div>
         </div>
         <Etable selection height="100%" :table-head-config="tableHeadConfig" :table-load-data="tableData" :list-loading="loading" align="left">
@@ -76,6 +76,7 @@ export default {
   },
   mounted() {
     this.id = this.$route.query.classId
+    this.url = '/courseScheduling/todayClassStudentDownload?courseId=' + this.$route.query.courseId
     this.init()
   },
   created() {

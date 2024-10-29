@@ -2,9 +2,7 @@
 import {
   selectAlumniType
 } from '@/api/systemSettings/userOpt'
-import {
-  selectLabel
-} from '@/api/systemSettings/majorOpt'
+
 export default {
   mounted() {
     this.getAlumniType()
@@ -31,15 +29,6 @@ export default {
         pageSize: 999,
         ...params
       }
-      selectLabel(param).then((res) => {
-        const { result, data } = res
-        this.labelTypeList = result === 1 ? data : []
-        console.log(this.labelTypeList)
-        this.labelTypeList.push({
-          attribute: '无',
-          id: '-1'
-        })
-      })
     },
     // 校友类型
     async getAlumniType() {
