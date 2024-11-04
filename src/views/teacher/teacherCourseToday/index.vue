@@ -12,7 +12,7 @@
             </div>
             <div class="cards">
               <div v-if="courseList && courseList.length" style="width: 100%; height: 100%;">
-                <div v-for="item in courseList" :key="item.id" class="card" @click="turn(item.id,item.courseId)">
+                <div v-for="item in courseList" :key="item.id" class="card" @click="turn(item.id,item.courseId, calendarDate)">
                   课程名称： {{ item.courseName }}<br>
                   上课时间： {{ item.courseStartTime }} - {{ item.courseEndTime }}<br>
                   上课地点： {{ item.courseSite }}<br>

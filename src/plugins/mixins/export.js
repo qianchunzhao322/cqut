@@ -10,6 +10,7 @@ export default {
     showDerive(list, method, url, fileName, role) {
       if (list?.length) {
         this.down('请确定是否导出?', list, method, url, fileName, role)
+        console.log(list)
       } else {
         this.down('您未选择任何数据，将下载全部在册数据', list, method, url, fileName, role)
       }
@@ -36,8 +37,9 @@ export default {
             })
             data.userIdList = temp
             data.userRole = role
+            list.length ? data : data = { userIdList: [], userRole: role }
           }
-          list.length ? data = null : data
+          // list.length ? data : data = null
           download(method, url, classIdList || data).then((res) => {
             if (res.code) {
               this.$message.error(res.msg)

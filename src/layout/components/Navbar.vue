@@ -5,18 +5,33 @@
         {{ title }}
       </div>
       <div class="right-menu">
-        <el-dropdown class="avatar-container" trigger="click">
+        <el-dropdown
+          class="avatar-container"
+          trigger="click"
+        >
           <span class="avatar-wrapper">
-            <img src="../../assets/navbar/avatar.png" class="user-avatar">
+            <img
+              src="../../assets/navbar/avatar.png"
+              class="user-avatar"
+            >
             <div class="user-name">{{ realName }}</div>
             <i class="el-icon-caret-bottom" />
           </span>
-          <el-dropdown-menu slot="dropdown" class="user-dropdown">
+          <el-dropdown-menu
+            slot="dropdown"
+            class="user-dropdown"
+          >
             <el-dropdown-item>
-              <span style="display:block;" @click="showPerson">个人中心</span>
+              <span
+                style="display:block;"
+                @click="showPerson"
+              >个人中心</span>
             </el-dropdown-item>
             <el-dropdown-item>
-              <span style="display:block;" @click="showChangePass">修改密码</span>
+              <span
+                style="display:block;"
+                @click="showChangePass"
+              >修改密码</span>
             </el-dropdown-item>
             <el-dropdown-item @click.native="showLogout">
               <span style="display:block;">退出登录</span>
@@ -32,23 +47,64 @@
       width="504px"
       @closed="resetForm('changePersonRef')"
     >
-      <el-form ref="changePersonRef" :rules="personRules" label-width="80px" :model="formAll">
-        <el-form-item label="用户ID" prop="userId">
-          <el-input v-model.trim="formAll.userId" maxlength="20" disabled placeholder="请输入用户ID" />
+      <el-form
+        ref="changePersonRef"
+        :rules="personRules"
+        label-width="80px"
+        :model="formAll"
+      >
+        <el-form-item
+          label="用户ID"
+          prop="userId"
+        >
+          <el-input
+            v-model.trim="formAll.userId"
+            maxlength="20"
+            disabled
+            placeholder="请输入用户ID"
+          />
         </el-form-item>
-        <el-form-item label="用户姓名" prop="realName">
-          <el-input v-model.trim="formAll.realName" maxlength="20" disabled placeholder="请输入用户名" />
+        <el-form-item
+          label="用户姓名"
+          prop="realName"
+        >
+          <el-input
+            v-model.trim="formAll.realName"
+            maxlength="20"
+            disabled
+            placeholder="请输入用户名"
+          />
         </el-form-item>
-        <el-form-item label="身份证号" prop="identityNumber">
-          <el-input v-model.trim="formAll.identityNumber" placeholder="请输入身份证号" maxlength="20" />
+        <el-form-item
+          label="身份证号"
+          prop="identityNumber"
+        >
+          <el-input
+            v-model.trim="formAll.identityNumber"
+            placeholder="请输入身份证号"
+            maxlength="20"
+          />
         </el-form-item>
-        <el-form-item label="联系手机" prop="phoneNumber">
-          <el-input v-model.trim="formAll.phoneNumber" placeholder="请输入联系手机" maxlength="20" />
+        <el-form-item
+          label="联系手机"
+          prop="phoneNumber"
+        >
+          <el-input
+            v-model.trim="formAll.phoneNumber"
+            placeholder="请输入联系手机"
+            maxlength="20"
+          />
         </el-form-item>
       </el-form>
-      <span slot="footer" class="dialog-footer">
+      <span
+        slot="footer"
+        class="dialog-footer"
+      >
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="resetInfo">确定</el-button>
+        <el-button
+          type="primary"
+          @click="resetInfo"
+        >确定</el-button>
       </span>
     </el-dialog>
     <el-dialog
@@ -59,25 +115,21 @@
       width="504px"
       @closed="resetForm('changePassRef')"
     >
-      <el-form ref="changePassRef" :rules="rules" label-width="80px" :model="formPwd">
-        <el-form-item label="旧密码" prop="oldPwd">
+      <el-form
+        ref="changePassRef"
+        :rules="rules"
+        label-width="80px"
+        :model="formPwd"
+      >
+        <el-form-item
+          label="旧密码"
+          prop="oldPwd"
+        >
           <el-input
             v-model.trim="formPwd.oldPwd"
+            type="password"
             placeholder="请输入旧密码"
             maxlength="20"
-            name="name1"
-            autocomplete="off"
-          />
-        </el-form-item>
-        <el-form-item label="新密码" prop="newPwd">
-          <el-input
-            v-model.trim="formPwd.newPwd"
-            :type="inputType1"
-            placeholder="请输入新密码"
-            name="name2"
-            maxlength="20"
-            autocomplete="off"
-            @clear="clearPassword('name2')"
           >
             <i
               slot="suffix"
@@ -86,15 +138,16 @@
             />
           </el-input>
         </el-form-item>
-        <el-form-item label="确认密码" prop="cNewPwd">
+        <el-form-item
+          label="新密码"
+          prop="newPwd"
+        >
           <el-input
-            v-model.trim="formPwd.cNewPwd"
+            v-model.trim="formPwd.newPwd"
+            placeholder="请输入新密码"
             :type="inputType2"
-            placeholder="请再次输入新密码"
-            name="name3"
             maxlength="20"
-            autocomplete="off"
-            @clear="clearPassword('name3')"
+            @clear="clearPassword('name2')"
           >
             <i
               slot="suffix"
@@ -103,10 +156,34 @@
             />
           </el-input>
         </el-form-item>
+        <el-form-item
+          label="确认密码"
+          prop="cNewPwd"
+        >
+          <el-input
+            v-model.trim="formPwd.cNewPwd"
+            :type="inputType3"
+            placeholder="请再次输入新密码"
+            maxlength="20"
+            @clear="clearPassword('name3')"
+          >
+            <i
+              slot="suffix"
+              :class="['iconfont', inputType3 == 'text' ? 'icon-a-bianzu42beifen' : 'icon-a-bianzu42']"
+              @click.stop="togglePasswordType('inputType3')"
+            />
+          </el-input>
+        </el-form-item>
       </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="changePassDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="changPwd">确定</el-button>
+      <span
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button @click="controlFunc()">取消</el-button>
+        <el-button
+          type="primary"
+          @click="changPwd"
+        >确定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -115,7 +192,6 @@
 <script>
 const sha256 = require('js-sha256').sha256
 import { mapGetters } from 'vuex'
-import Breadcrumb from '@/components/Breadcrumb'
 import { Message } from 'element-ui'
 // import { title } from '@/settings'
 import {
@@ -124,13 +200,13 @@ import {
 import { getInfo } from '@/api/user'
 export default {
   components: {
-    Breadcrumb
   },
   data() {
     return {
       // title,
       changePassDialogVisible: false,
       dialogVisible: false,
+      accountModify: null,
       formAll: {
         id: '',
         userId: '',
@@ -173,7 +249,7 @@ export default {
         },
         {
           pattern:
-						/^1(3[0-9]|4[0-9]|5[0-9]|6[0-9]|7[0-9]|8[0-9]|9[0-9])\d{8}$/,
+            /^1(3[0-9]|4[0-9]|5[0-9]|6[0-9]|7[0-9]|8[0-9]|9[0-9])\d{8}$/,
           message: '请输入正确的手机号',
           trigger: ['blur', 'change']
         }]
@@ -185,10 +261,10 @@ export default {
           { min: 6, max: 12, message: '长度在 6 到 12 个字符', trigger: ['blur', 'change'] },
           {
             validator: (rule, value, callback) => {
-              // let reg = /^\S*(?=\S{6,})(?=\S*\d)(?=\S*[A-Z])(?=\S*[a-z])(?=\S*[@])\S*$/;
-              // if (!reg.test(value)) {
-              //   callback(new Error('密码强度不够,必须由大小写字母、数字、@组成'))
-              // }
+              const reg = /^\S*(?=\S{6,})(?=\S*\d)(?=\S*[A-Z])(?=\S*[a-z])(?=\S*[@])\S*$/
+              if (!reg.test(value)) {
+                callback(new Error('密码强度不够,必须由大小写字母、数字、@组成'))
+              }
               this.$refs.changePassRef.validateField('cNewPwd')
               callback()
             }
@@ -209,7 +285,8 @@ export default {
         ]
       },
       inputType1: 'password',
-      inputType2: 'password'
+      inputType2: 'password',
+      inputType3: 'password'
 
     }
   },
@@ -232,8 +309,26 @@ export default {
   },
   mounted() {
     this.$store.dispatch('user/getInfo')
+    this.init()
   },
   methods: {
+    init() {
+      getInfo(getUserInfo().id).then((res) => {
+        this.accountModify = res.data.accountModify
+        if (this.accountModify === 0) {
+          this.changePassDialogVisible = true
+        }
+      })
+    },
+    controlFunc() {
+      if (this.accountModify === 0) {
+        this.changePassDialogVisible = true
+        this.$message.warning('第一次登陆请修改密码以保证账号安全')
+      } else {
+        this.changePassDialogVisible = false
+      }
+      // this.accountModify === 0 ? this.changePassDialogVisible = true : this.changePassDialogVisible = false
+    },
     clearPassword(name) {
       this.formLabelAlign[name] = ''
     },
@@ -242,15 +337,11 @@ export default {
     },
     showChangePass() {
       this.changePassDialogVisible = true
-      this.$refs.changePassRef.resetFields()
     },
     changPwd() {
       this.$refs.changePassRef.validate((valid) => {
         if (valid) {
-          const {
-            oldPwd,
-            cNewPwd
-          } = this.formPwd
+          const { oldPwd, cNewPwd } = this.formPwd
           this.$store.dispatch('user/resetPwd', { oldPassword: sha256(oldPwd), newPassword: sha256(cNewPwd) }).then((res) => {
             if (res.code !== 200) {
               Message({
@@ -274,6 +365,8 @@ export default {
         this.formAll = {
           ...res.data
         }
+        this.accountModify = res.data.accountModify
+        console.log(this.accountModify)
       })
       // this.$store.dispatch('user/getInfo').then((res) => {
       //   this.dialogVisible = true
@@ -299,7 +392,10 @@ export default {
       })
     },
     resetForm(formName) {
-      this.$refs[formName].resetFields()
+      this.controlFunc()
+      if (this.accountModify !== 0) {
+        this.$refs[formName].resetFields()
+      }
     },
     showLogout() {
       this.$confirm('请确认是否退出登陆?', '退出登陆', {
@@ -322,100 +418,100 @@ export default {
 
 <style lang="scss" scoped>
 .change_pass_container {
-	.iconfont {
-		cursor: pointer;
-		padding: 10px;
-		font-size: 20px;
-	}
+  .iconfont {
+    cursor: pointer;
+    padding: 10px;
+    font-size: 20px;
+  }
 }
 
 .navbar {
   padding: 0 20px;
-	overflow: hidden;
-	position: relative;
-	background: #fff;
-	// box-shadow: 0 1px 4px rgba(0,21,41,.08);
-	display: flex;
-	flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+  // box-shadow: 0 1px 4px rgba(0,21,41,.08);
+  display: flex;
+  flex-direction: column;
 
-	.navbar_header {
-		height: 86px;
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-	}
+  .navbar_header {
+    height: 86px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
-	.navbar_title {
-		font-size: 22px;
-		font-weight: bold;
-		color: #26406E;
-	}
+  .navbar_title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #26406e;
+  }
 
-	.hamburger-container {
-		line-height: 46px;
-		height: 100%;
-		float: left;
-		cursor: pointer;
-		transition: background .3s;
-		-webkit-tap-highlight-color: transparent;
+  .hamburger-container {
+    line-height: 46px;
+    height: 100%;
+    float: left;
+    cursor: pointer;
+    transition: background 0.3s;
+    -webkit-tap-highlight-color: transparent;
 
-		&:hover {
-			background: rgba(0, 0, 0, .025)
-		}
-	}
+    &:hover {
+      background: rgba(0, 0, 0, 0.025);
+    }
+  }
 
-	.breadcrumb-container {
-		float: left;
-	}
+  .breadcrumb-container {
+    float: left;
+  }
 
-	.right-menu {
-		float: right;
-		display: flex;
-		align-items: center;
+  .right-menu {
+    float: right;
+    display: flex;
+    align-items: center;
 
-		&:focus {
-			outline: none;
-		}
+    &:focus {
+      outline: none;
+    }
 
-		.right-menu-item {
-			display: inline-block;
-			padding: 0 8px;
-			height: 100%;
-			font-size: 18px;
-			color: #5a5e66;
-			vertical-align: text-bottom;
+    .right-menu-item {
+      display: inline-block;
+      padding: 0 8px;
+      height: 100%;
+      font-size: 18px;
+      color: #5a5e66;
+      vertical-align: text-bottom;
 
-			&.hover-effect {
-				cursor: pointer;
-				transition: background .3s;
+      &.hover-effect {
+        cursor: pointer;
+        transition: background 0.3s;
 
-				&:hover {
-					background: rgba(0, 0, 0, .025)
-				}
-			}
-		}
+        &:hover {
+          background: rgba(0, 0, 0, 0.025);
+        }
+      }
+    }
 
-		.avatar-container {
-			margin-right: 30px;
+    .avatar-container {
+      margin-right: 30px;
 
-			.avatar-wrapper {
-				margin-top: 5px;
-				position: relative;
-				display: flex;
-				align-items: center;
-				cursor: pointer;
+      .avatar-wrapper {
+        margin-top: 5px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
 
-				.user-name {
-					margin: 0 10px;
-				}
+        .user-name {
+          margin: 0 10px;
+        }
 
-				.user-avatar {
-					width: 24px;
-					height: 24px;
-					border-radius: 10px;
-				}
-			}
-		}
-	}
+        .user-avatar {
+          width: 24px;
+          height: 24px;
+          border-radius: 10px;
+        }
+      }
+    }
+  }
 }
 </style>

@@ -76,7 +76,7 @@ export default {
   },
   mounted() {
     this.id = this.$route.query.classId
-    this.url = '/courseScheduling/todayClassStudentDownload?courseId=' + this.$route.query.courseId
+    this.url = '/courseScheduling/todayClassStudentDownload?courseSchedulingId=' + this.$route.query.classId
     this.init()
   },
   created() {

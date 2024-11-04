@@ -9,7 +9,8 @@ const getDefaultState = () => {
     avatar: '',
     userId: '',
     userInfo: {},
-    roles: []
+    roles: [],
+    modifyNumber: ''
   }
 }
 
@@ -39,6 +40,9 @@ const mutations = {
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_MODIFYNUMBER: (state, modifyNumber) => {
+    state.modifyNumber = modifyNumber
   }
 }
 
@@ -90,6 +94,7 @@ const actions = {
       commit('SET_USERID', user.id)
       commit('SET_USERREALID', user.userId)
       commit('SET_ROLES', [user.permissionCode])
+      commit('SET_MODIFYNUMBER', user.modifyNumber)
       setUserInfo(user)
       resolve(user)
     })

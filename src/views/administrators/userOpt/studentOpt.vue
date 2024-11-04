@@ -54,6 +54,7 @@
               >
                 <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
                 <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+                <el-button style="margin-left: 10px;" size="small" type="warning"><a :href="'./excel/学生信息上传模板.xlsx'" download="学生信息上传模板.xlsx">下载模板</a></el-button>
                 <div slot="tip" class="el-upload__tip">只能上传xlxs文件，且不超过2M</div>
               </el-upload>
               <el-button slot="reference" type="text" style="margin-left: 10px;">导入</el-button>
@@ -96,8 +97,21 @@
             </el-form-item>
           </el-col>
           <el-col :span="22">
-            <el-form-item prop="majorId" label="专业：" label-width="95px">
-              <el-input v-model="addForm.majorId" :maxlength="20" placeholder="请输入专业" clearable :style="{width: '100%'}" />
+            <el-form-item label="所学专业：" prop="majorId" label-width="95px">
+              <el-select
+                v-model="addForm.majorId"
+                clearable
+                :style="{width: '100%'}"
+                :maxlength="20"
+                placeholder="请选择所学专业"
+              >
+                <el-option
+                  v-for="item in majorList"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="22">
@@ -118,6 +132,7 @@
 <script>
 import PaginationVue from '@/components/Pagination/index.vue'
 import { selectUser, addUser, editUser, deleteUser, resetUser } from '@/api/systemSettings/userOpt'
+import { selectMajor } from '@/api/systemSettings/majorOpt'
 import { mapGetters } from 'vuex'
 import exportFile from '@/plugins/mixins/export'
 import { upload } from '@/api/taskCenter'
@@ -216,6 +231,7 @@ export default {
         ]
       },
       tableData: [],
+      majorList: [],
       currentPage: 1,
       pageSize: 20,
       pageTotal: 0,
@@ -265,6 +281,7 @@ export default {
     },
     // 文件状态改变时的钩子
     fileChange(file, fileList) {
+      this.fileList = []
       this.fileList.push(file.raw)
     },
     submitUpload() {
@@ -287,14 +304,26 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
-      console.log(this.multipleSelection)
     },
     closeDialog(name) {
       this.$refs[name].resetFields()
     },
     // 初始化
     init() {
+      this.getMajor()
       this.taskSelect()
+    },
+    getMajor() {
+      const params = { page: 1, pageSize: 100 }
+      selectMajor(params).then((res) => {
+        res.data.records.forEach(e => {
+          var temp = {
+            value: e.majorId,
+            label: e.majorName
+          }
+          this.majorList.push(temp)
+        })
+      })
     },
     // 用户-条件搜索
     taskSelect(type) {
@@ -303,7 +332,14 @@ export default {
       const params = { ...this.formData, permissionCode: 3, page: this.currentPage, pageSize: this.pageSize, time: null }
       delete params.time
       selectUser(params).then((res) => {
-        this.tableData = res.data.records
+        var temp = res.data.records
+        temp.forEach(obj1 => {
+          const matchingObj2 = this.majorList.find(obj2 => obj2.value === obj1.majorId)
+          if (matchingObj2) {
+            obj1.majorId = matchingObj2.label
+          }
+        })
+        this.tableData = temp
         this.pageTotal = +res.data.total
         this.$closeLoading('inhert_main')
       })
@@ -394,7 +430,7 @@ export default {
       resetUser(row.id).then((res) => {
         if (res.code) {
           this.$message.success('密码重置为原始密码123456')
-          // this.taskSelect()
+          this.taskSelect()
         }
       })
     }

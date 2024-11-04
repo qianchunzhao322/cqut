@@ -108,7 +108,7 @@ export default {
             margin-bottom: 16px;
             padding: 14px 14px 0 14px;
             border: 1px solid #ECF0F8;
-            background: #FCFDFE;
+            background: rgb(241,245,251);
             border-radius: 8px;
             // height: 190px;
             height: calc((100% - 48px)/3);

@@ -57,6 +57,7 @@
               >
                 <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
                 <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+                <el-button style="margin-left: 10px;" size="small" type="warning"><a :href="'./excel/课程信息上传模板.xlsx'" download="课程信息上传模板.xlsx">下载模板</a></el-button>
                 <div slot="tip" class="el-upload__tip">只能上传xlxs文件，且不超过2M</div>
               </el-upload>
               <el-button slot="reference" type="text" style="margin-left: 10px;">导入</el-button>
@@ -225,6 +226,11 @@ export default {
           width: 200
         },
         {
+          label: '课程余量',
+          value: 'courseSku',
+          tooltip: true
+        },
+        {
           width: 150,
           label: '操作',
           columnType: 'slot',
@@ -313,6 +319,7 @@ export default {
     },
     // 文件状态改变时的钩子
     fileChange(file, fileList) {
+      this.fileList = []
       this.fileList.push(file.raw)
     },
     submitUpload() {
