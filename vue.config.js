@@ -42,6 +42,7 @@ module.exports = {
         // 目标 API 地址
         // target: 'http://116.63.197.65:8916/tdxy', // 真实的api地址
         target: 'http://27.25.142.59:8081', // test
+        // target: 'http://127.0.0.1:8081',
         // 将主机标头的原点更改为目标URL
         changeOrigin: true,
         pathRewrite: {

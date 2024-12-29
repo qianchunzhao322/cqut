@@ -8,7 +8,7 @@
           <div class="aside_container">
             <div class="header">
               今日课时
-              <el-button v-show="courseList && courseList.length" style="position: absolute;top: 12px;right: 6px;" size="small" type="primary" @click="showDerive(multipleSelection, 'get', '/courseScheduling/todayClassDownload', '今日课程信息.xlsx')">下载列表</el-button>
+              <el-button v-show="courseList && courseList.length" style="position: absolute;top: 12px;right: 6px;" size="small" type="primary" @click="showDerive(multipleSelection, 'get', `/teacher/todayClassStudentDownload?date=${tempDate}`, '今日学生花名册.xlsx')">下载列表</el-button>
             </div>
             <div class="cards">
               <div v-if="courseList && courseList.length" style="width: 100%; height: 100%;">
@@ -20,7 +20,7 @@
                   <img src="@/assets/class.png">
                 </div>
               </div>
-              <EmptyCom v-else :text="'今日无课程'" />
+              <EmptyCom v-else :text="'今日无课时'" />
             </div>
           </div>
 
@@ -58,6 +58,7 @@ export default {
     return {
       multipleSelection: [],
       calendarDate: null,
+      tempDate: null,
       loading: false,
       courseList: []
     }
@@ -77,6 +78,7 @@ export default {
   methods: {
     changeDate(val) {
       getClassByDate(val || moment(Date.now()).format('YYYY-MM-DD')).then((res) => {
+        this.tempDate = val
         if (res.code === 200) {
           this.courseList = res.data
         }

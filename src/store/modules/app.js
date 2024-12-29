@@ -12,9 +12,9 @@ const state = {
 const mutations = {
   TOGGLE_SHOW_SIDEBAR: (state) => {
     state.sidebar.showSidebar = !state.sidebar.showSidebar
-    if(state.sidebar.showSidebar){
+    if (state.sidebar.showSidebar) {
       Cookies.set('showSidebar', 1)
-    }else{
+    } else {
       Cookies.set('showSidebar', 0)
     }
   },
@@ -53,16 +53,16 @@ const mutations = {
 }
 
 const actions = {
-  openSidebar({ commit }){
+  openSidebar({ commit }) {
     commit('SHOW_SHOW_SIDEBAR')
   },
-  toggleShowSidebar({ commit }, flag){
+  toggleShowSidebar({ commit }, flag) {
     // commit('TOGGLE_SHOW_SIDEBAR', flag)
   },
-  closeShowSidebar({ commit }){
+  closeShowSidebar({ commit }) {
     commit('CLOSE_SHOW_SIDEBAR')
   },
-  showSidebarOpened({ commit }){
+  showSidebarOpened({ commit }) {
     commit('SHOW_SIDEBAR')
   },
   toggleSideBar({ commit }) {

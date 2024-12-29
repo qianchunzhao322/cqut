@@ -16,38 +16,77 @@
             type="date"
             placeholder="选择日期"
             format="yyyy 年 MM 月 dd 日"
-            value-format="yyyy/MM/dd"
+            value-format="yyyy-MM-dd"
           />
-          <el-button type="primary">提交</el-button>
+          <el-button type="primary" @click="editStart">修改学期开始时间</el-button>
         </el-form-item>
       </el-form>
-      <div class="text item">在册学生数量 -- <span>9</span>人</div>
-      <div class="text item">在册教师数量 -- <span>9</span>人</div>
-      <div class="text item">课程数量 -- <span>9</span>节</div>
-      <div class="text item">操作日志数量 -- <span>996467</span>次</div>
-      <div class="text item">系统服务人次 -- <span>9757</span>次</div>
+      <div class="text item">在册学生数量 -- <span>{{ stuNumber }}</span>人</div>
+      <div class="text item">在册教师数量 -- <span>{{ teaNumber }}</span>人</div>
+      <div class="text item">实验课程数量 -- <span>{{ courseNumber }}</span>个</div>
+      <div class="text item">操作日志数量 -- <span>{{ optNumber }}</span>次</div>
+      <div class="text item">系统服务人次 -- <span>{{ visitNumber }}</span>次</div>
     </el-card>
   </div>
 </template>
 
 <script>
-import { selectOptLog } from '@/api/operationLog'
+import { getNewSemesterStartDate, editNewSemesterStartDate, sysInfoSelect, semesterReset } from '@/api/systemSettings/sysOpt'
 export default {
   name: 'SemesterResetIndex',
   components: {
   },
   data() {
     return {
-      time: ''
+      time: '',
+      stuNumber: 0,
+      teaNumber: 0,
+      visitNumber: 0,
+      courseNumber: 0,
+      optNumber: 0
     }
   },
   mounted() {
   },
   created() {
+    this.getStart()
+    this.getSysInfo()
   },
   methods: {
+    getStart() {
+      getNewSemesterStartDate().then((res) => {
+        if (res.code === 200) {
+          this.time = res.data
+        }
+      })
+    },
+    getSysInfo() {
+      sysInfoSelect().then((res) => {
+        if (res.code === 200) {
+          this.stuNumber = res.data[0].stuNumber
+          this.teaNumber = res.data[0].teaNumber
+          this.visitNumber = res.data[0].visitNumber
+          this.optNumber = res.data[0].optNumber
+          this.courseNumber = res.data[0].courseNumber
+        }
+      })
+    },
+    editStart() {
+      editNewSemesterStartDate(this.time).then((res) => {
+        if (res.code === 200) {
+          this.$message.success('学期开始时间修改成功')
+          this.getStart()
+        }
+      })
+    },
     handleConfirm() {
-      console.log('yes')
+      semesterReset().then((res) => {
+        if (res.code === 200) {
+          this.$message.success('学期数据重置成功！！！')
+          this.getStart()
+          this.getSysInfo()
+        }
+      })
     }
   }
 }

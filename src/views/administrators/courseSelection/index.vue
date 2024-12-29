@@ -109,6 +109,9 @@
           <template slot="courseInterval" slot-scope="{ data }">
             <span>{{ data.row.courseStartTime }} - {{ data.row.courseEndTime }}</span>
           </template>
+          <template slot="operation" slot-scope="{ data }">
+            <el-button type="text" size="small" style="color: #F74B4B;" @click="open(data.row)"> 塞人 </el-button>
+          </template>
         </Etable>
         <!-- 卡片列表 -->
         <div v-else class="card_list_container">
@@ -116,16 +119,27 @@
         </div>
       </template>
       <template slot="footer">
-        <pagination-vue :current-page.sync="currentPage" :page-size.sync="pageSize" :total="pageTotal" @getList="taskSelect" />
+        <pagination-vue v-if="!isGrid" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="pageTotal" @getList="taskSelect" />
       </template>
     </base-layout>
+    <el-dialog title="塞人" :visible.sync="dialogFormVisible">
+      <el-form :model="form">
+        <el-form-item label="学号" :label-width="formLabelWidth">
+          <el-input v-model="form.stuId" clearable />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="pushPeople">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import PaginationVue from '@/components/Pagination/index.vue'
 import courseCardList from '@/views/administrators/courseSelection/components/courseCardList.vue'
-import { selectCourseScheduling } from '@/api/courseScheduling'
+import { selectCourseScheduling, forceTakeCourseScheduling } from '@/api/courseScheduling'
 import { selectCourse } from '@/api/systemSettings/courseOpt'
 import { selectUser } from '@/api/systemSettings/userOpt'
 import exportFile from '@/plugins/mixins/export'
@@ -143,6 +157,11 @@ export default {
   ],
   data() {
     return {
+      dialogFormVisible: false,
+      form: {
+        stuId: ''
+      },
+      formLabelWidth: '60px',
       checkAll: false,
       isIndeterminate: false,
       currentPage: 1,
@@ -172,7 +191,7 @@ export default {
           fixed: 'left'
         },
         {
-          label: '课程名称',
+          label: '实验名称',
           value: 'courseName',
           tooltip: true,
           width: 200,
@@ -197,6 +216,24 @@ export default {
           width: 200
         },
         {
+          label: '课时周次',
+          value: 'courseWeek',
+          tooltip: true,
+          width: 200
+        },
+        {
+          label: '课时人数限制',
+          value: 'courseLimit',
+          tooltip: true,
+          width: 200
+        },
+        {
+          label: '实验课时剩余容量',
+          value: 'courseSchedulingSku',
+          tooltip: true,
+          width: 200
+        },
+        {
           label: '课时时间',
           columnType: 'slot',
           slotName: 'courseInterval',
@@ -213,6 +250,13 @@ export default {
           value: 'courseDayStr',
           tooltip: true,
           width: 200
+        },
+        {
+          width: 100,
+          label: '操作',
+          columnType: 'slot',
+          fixed: 'right',
+          slotName: 'operation'
         }
       ],
       cardData: [],
@@ -247,12 +291,12 @@ export default {
     this.init()
   },
   activated() {
+    this.taskSelect()
+    this.getCourse()
   },
   methods: {
     init() {
-      this.getCourse()
       this.getTeacher()
-      this.taskSelect()
     },
     // 文件状态改变时的钩子
     fileChange(file, fileList) {
@@ -266,7 +310,15 @@ export default {
         const form = new FormData()
         form.append('file', this.fileList[0])
         upload('/courseScheduling/courseSchedulingUpload', form).then(res => {
-          this.taskSelect()
+          if (res.code === 200) {
+            this.$message.success('全部课时上传成功')
+            this.taskSelect()
+          } else if (res.code === 409) {
+            this.$message.warning('上传课时存在冲突，请自行检查后上传！！')
+            this.fileList = []
+          } else {
+            this.$message.error(res.msg)
+          }
         })
       }
     },
@@ -276,6 +328,9 @@ export default {
       if (size > 2) {
         this.$message.warning('文件大小不得超过2M')
       }
+    },
+    handleRemove(file, fileList) {
+      this.fileList = []
     },
     getTeacher() {
       const params = { permissionCode: 2, page: 1, pageSize: 100 }
@@ -319,14 +374,9 @@ export default {
         this.loading = false
       })
     },
-    handleRemove(file, fileList) {
-      console.log(file, fileList)
-    },
     handlePreview(file) {
-      console.log(file)
     },
     handleSelectionChange(val) {
-      console.log(val)
       this.multipleSelection = val
     },
     resetForm(formName) {
@@ -338,7 +388,6 @@ export default {
       this.taskSelect()
     },
     lookUnit(row) {
-      console.log(row)
       const { courseId, courseName, courseLimit, courseHours } = row
       this.$router.push({
         path: '/courseSelection/detail',
@@ -351,7 +400,6 @@ export default {
       })
     },
     eidtUnit(row) {
-      console.log(row)
       const { courseId, courseName } = row
       this.$router.push({
         path: '/courseSelection/unitform',
@@ -359,6 +407,19 @@ export default {
           courseId,
           courseName
         }
+      })
+    },
+    open(row) {
+      this.dialogFormVisible = true
+      this.temp = row.id
+    },
+    pushPeople(row) {
+      const data = { courseSchedulingId: this.temp, ...this.form }
+      forceTakeCourseScheduling(data).then((res) => {
+        if (res.code === 400) this.$message.error(res.msg)
+        if (res.code === 200) this.$message.success('塞人成功')
+        this.dialogFormVisible = false
+        this.taskSelect()
       })
     }
   }

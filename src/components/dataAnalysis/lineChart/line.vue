@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <EmptyCom v-if="showEmpty" />
-    <div v-if="!showEmpty" id="map_pie" class="content" />
+    <div v-if="!showEmpty" id="map_line" class="content" />
   </div>
 </template>
 
@@ -9,7 +9,7 @@
 import * as echarts from 'echarts'
 import lineChart from '@/components/dataAnalysis/lineChart/lineChart'
 import EmptyCom from '@/components/EmptyCom/index'
-import { pieMap } from '@/api/index'
+import { getSysService } from '@/api/systemSettings/sysOpt'
 export default {
   name: 'Line',
   components: {
@@ -22,7 +22,8 @@ export default {
     }
   },
   mounted() {
-    this.getPieData1()
+    this.getLineData()
+    // this.getLine()
     // this.initUnitPieChart()
     window.addEventListener('resize', this.resizeCharts)
   },
@@ -30,37 +31,20 @@ export default {
     window.removeEventListener('resize', this.resizeCharts)
   },
   methods: {
-    getPieData1() {
-      this.chart = echarts.init(document.getElementById('map_pie'))
-      this.chart.setOption(lineChart.initLineChart(['name'], ['value']))
-    },
-    getPieData() {
-      pieMap().then((res) => {
-        const tempName = []
-        const tempValue = []
-        if (res.data.length === 0) {
-          this.showEmpty = true
-          return
+    getLineData() {
+      getSysService().then((res) => {
+        if (res.code === 200) {
+          // this.lineData = res.data.data
+          this.getLine(res.data.data.dayArr, res.data.data.numArr)
         }
-        res.data.forEach(item => {
-          tempName.push(item.companyType || '')
-          tempValue.push(item.count)
-          // if (item.companyType) {
-          //   tempName.push(item.companyType || '')
-          //   tempValue.push(item.count)
-          // } else {
-          //   return
-          // }
-        })
-        this.initUnitPieChart(tempName, tempValue)
       })
+    },
+    getLine(day, num) {
+      this.chart = echarts.init(document.getElementById('map_line'))
+      this.chart.setOption(lineChart.initLineChart(day, num))
     },
     resizeCharts() {
       this.chart.resize()
-    },
-    initUnitPieChart(name, value) {
-      this.chart = echarts.init(document.getElementById('map_pie'))
-      this.chart.setOption(pieChart.initPieChart(name, value))
     }
   }
 }

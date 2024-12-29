@@ -8,33 +8,18 @@
         <div class="contorl_container">
           <div class="contorl_title">课程教评</div>
           <div class="contorl_btns">
-            <el-button type="text" style="color: rgb(80, 160, 255);" @click="submit('ruleForm')">提交</el-button>
+            <el-button type="text" style="color: rgb(80, 160, 255);" @click="submit()">提交</el-button>
           </div>
         </div>
-        <el-form v-for="(item, index) in formList" :key="index" ref="ruleForm" :rules="rules" label-width="80px" :model="item">
-          <el-row :gutter="15">
-            <el-col :span="4">
-              <el-form-item label="课程ID：" prop="courseId">
-                <el-input v-model="item.courseId" :style="{width: '100%'}" disabled placeholder="课程" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="5">
-              <el-form-item label="课程名：" prop="courseName">
-                <el-input v-model="item.courseName" :style="{width: '100%'}" disabled placeholder="课程名" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="4">
-              <el-form-item label="评分：" prop="evaluateScore">
-                <el-input v-model="item.evaluateScore" :style="{width: '100%'}" placeholder="评分" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="10">
-              <el-form-item label="评价：" prop="evaluateContext">
-                <el-input v-model="item.evaluateContext" :style="{width: '100%'}" placeholder="评价" />
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form>
+        <Etable stripe height="100%" :table-head-config="tableHeadConfig" :table-load-data="tableData" :list-loading="loading" align="center">
+          <template slot="index" slot-scope="{ data }">
+            <span>{{ data.$index + 1 }}</span>
+          </template>
+          <template slot="score" slot-scope="{ data }">
+            <el-input-number v-model="data.row.score" :min="0" :max="100" placeholder="请输入得分" clearable />
+          </template>
+        </Etable>
+        <el-input v-model="evaluateDes" type="textarea" maxlength="30" show-word-limit placeholder="请输入此次实验课程整体评价……" clearable />
       </template>
     </base-layout>
 
@@ -42,101 +27,99 @@
 </template>
 
 <script>
-import { addEvaluate } from '@/api/studentCourseOpt'
-import { selectCourse } from '@/api/systemSettings/courseOpt'
-import { getInfo } from '@/api/user'
+import { addEvaluate } from '@/api/teacherEvaluate'
 import { mapGetters } from 'vuex'
 export default {
   name: 'Index',
   components: {
   },
   data() {
-    var checkScore = (rule, value, callback) => {
-      if (!value) {
-        return callback(new Error('评分不能为空'))
-      }
-      setTimeout(() => {
-        console.log(1)
-
-        if (value > 100 || value < 0) {
-          callback(new Error('必须在0-100之间'))
-        } else {
-          callback()
-        }
-      }, 500)
-    }
     return {
-      formList: [],
-      rules: {
-        evaluateContext: [
-          { required: true, message: '请填写课程评价', trigger: 'blur' }
-        ],
-        evaluateScore: [
-          { required: true, validator: checkScore, trigger: 'blur' }
-        ]
-      }
-
+      loading: false,
+      tableHeadConfig: [
+        {
+          label: '序号',
+          columnType: 'slot',
+          slotName: 'index',
+          width: 60,
+          fixed: 'left',
+          tooltip: true
+        },
+        {
+          label: '评教指标',
+          value: 'label',
+          tooltip: true
+        },
+        {
+          label: '得分',
+          columnType: 'slot',
+          slotName: 'score'
+        }
+      ],
+      evaluateDes: '',
+      tableData: [{
+        label: '教师课前准备充分。',
+        score: null
+      }, {
+        label: '教师尊重学生，并能严格要求学生，既教书又育人。',
+        score: null
+      }, {
+        label: '师讲课有激情，言谈举止文明。',
+        score: null
+      }, {
+        label: '真及时批改实验报告，热情解答学生问题。',
+        score: null
+      }, {
+        label: '师课堂讲解熟练、清晰，重点突出，无照本宣科，易于理解。',
+        score: null
+      }, {
+        label: '教师很好地使用了课堂时间，教学过程安排合理。',
+        score: null
+      }, {
+        label: '师充满自信，课堂组织控制好。',
+        score: null
+      }, {
+        label: '实验原理及操作要领讲解清晰，示范熟练。',
+        score: null
+      }, {
+        label: '导学生正确实验，及时纠正操作错误。',
+        score: null
+      }, {
+        label: '重安全教育，培养学生安全意识。',
+        score: null
+      }, {
+        label: '过课程的学习，我掌握了实验方法和技能。',
+        score: null
+      }, {
+        label: '课程激发了我的实验兴趣，锻炼并提高了我的相关能力。',
+        score: null
+      }]
     }
   },
   computed: {
-    ...mapGetters(['userId', 'userInfo'])
+    ...mapGetters(['userRealId'])
   },
   mounted() {
-    this.init()
+    const { courseSchedulingId } = this.$route.query
+    this.courseSchedulingId = courseSchedulingId
   },
   created() {
   },
   methods: {
-    init() {
-      this.getCourse()
-      this.getId()
-    },
-    getId() {
-      getInfo(this.userInfo.id).then((res) => {
-        this.userRealId = res.data.userId
+    submit() {
+      var data = []
+      this.tableData.forEach(e => {
+        data.push(e.score)
       })
-    },
-    getCourse() {
-      selectCourse({ page: 1, pageSize: 100 }).then((res) => {
-        res.data.records.forEach(e => {
-          var temp = {
-            courseId: e.courseId,
-            courseName: e.courseName,
-            evaluateContext: null,
-            evaluateScore: null
-          }
-          this.formList.push(temp)
-        })
+      const params = { courseSchedulingId: this.courseSchedulingId, evaluateList: data, evaluateDes: this.evaluateDes }
+      addEvaluate(params).then((res) => {
+        if (res.code === 200) {
+          this.$message.success('课程评教成功！')
+          this.$router.push({
+            path: '/stuCourse/hoursDel'
+          })
+        }
       })
-    },
-    submit(formName) {
-      var state = true
-      this.$refs[formName].forEach(e => {
-        e.validate((valid) => {
-          if (valid) {
-            state = true
-          } else {
-            state = false
-          }
-        })
-      })
-      if (state) {
-        var data = []
-        this.formList.forEach(e => {
-          var temp = {
-            courseId: e.courseId,
-            evaluateContext: e.evaluateContext,
-            evaluateScore: +e.evaluateScore
-          }
-          data.push(temp)
-        })
-        const params = { stuId: this.userRealId, evaluateList: data }
-        addEvaluate(params).then((res) => {
-          if (res.code === 200) {
-            this.$message.success('课程评教成功！')
-          }
-        })
-      }
     }
   }
 }

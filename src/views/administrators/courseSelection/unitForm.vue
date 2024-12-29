@@ -89,6 +89,7 @@
                       v-model="ruleForm.courseTarget"
                       clearable
                       multiple
+                      disabled
                       class="w-100"
                       placeholder="请选择可选课专业"
                     >
@@ -133,9 +134,9 @@ import { selectMajor } from '@/api/systemSettings/majorOpt'
 import mainProduct from './components/mainProduct.vue'
 import addMainProduct from './components/addMainProduct.vue'
 
-import {
-  inductryType
-} from '@/plugins/options'
+// import {
+//   inductryType
+// } from '@/plugins/options'
 export default {
   name: 'UnitForm',
   components: {
@@ -143,12 +144,14 @@ export default {
     addMainProduct
   },
   mixins: [
-    inductryType
+    // inductryType
   ],
   data() {
     return {
       id: '',
       majorList: [],
+      courseId: null,
+      courseName: null,
       mainProductsList: [],
       ruleForm: {
         courseId: '',

@@ -55,8 +55,8 @@ export default {
         tooltip: true
       },
       {
-        label: '课程评分',
-        value: 'evaluateScore',
+        label: '学生姓名',
+        value: 'stuName',
         width: '100px',
         tooltip: true
       }, {

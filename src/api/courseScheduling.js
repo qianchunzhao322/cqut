@@ -41,7 +41,7 @@ export function courseSchedulingDelete(id) {
 
 export function getCourseGrade(params) {
   return request({
-    url: '/courseChoose/courseGradePage',
+    url: '/courseSchedulingChoose/courseGradePage',
     method: 'post',
     data: params
   })
@@ -49,8 +49,16 @@ export function getCourseGrade(params) {
 
 export function getCourseEvaluate(params) {
   return request({
-    url: '/courseChoose/courseEvaluatePage',
+    url: '/tea-evaluate/courseEvaluatePage',
     method: 'post',
     data: params
+  })
+}
+
+export function forceTakeCourseScheduling(params) {
+  return request({
+    url: '/courseSchedulingChoose/forceTakeCourseScheduling',
+    method: 'post',
+    params
   })
 }

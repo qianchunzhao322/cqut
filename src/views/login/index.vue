@@ -120,7 +120,7 @@ export default {
             password: sha256(userInfo.password)
           }
           this.$store.dispatch('user/login', userInfo).then((res) => {
-            console.log('ok')
+            // console.log('ok')
             if (this.formData.remember) {
               localStorage.setItem('loginForm', JSON.stringify(this.formData))
             } else {
@@ -129,11 +129,12 @@ export default {
             this.$router.push({ path: this.redirect || '/' })
             this.loading = false
           }).catch((res) => {
+            this.$message.error(res)
             this.formData.password = null
             this.loading = false
           })
         } else {
-          console.log('error submit!!')
+          // console.log('error submit!!')
           return false
         }
       })

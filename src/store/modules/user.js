@@ -9,6 +9,7 @@ const getDefaultState = () => {
     avatar: '',
     userId: '',
     userInfo: {},
+    userRealId: '',
     roles: [],
     modifyNumber: ''
   }
@@ -66,7 +67,7 @@ const actions = {
       login(userInfo).then(response => {
         const { data } = response
         if (response.code === 200) {
-          console.log(data)
+          // console.log('login', data)
           commit('SET_USERInfo', data)
           setUserInfo(data)
           commit('SET_USER', data)
@@ -78,6 +79,9 @@ const actions = {
           setToken(data.token)
           resolve(response)
         }
+        if (response.code === 400) {
+          reject(response.msg)
+        }
       }).catch(error => {
         reject(error)
       })
@@ -88,7 +92,7 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       const user = getUserInfo()
-      console.log('user', user)
+      // console.log('user', user)
       commit('SET_NAME', user.realName)
       commit('SET_USER', user)
       commit('SET_USERID', user.id)

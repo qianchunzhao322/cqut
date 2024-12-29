@@ -17,11 +17,11 @@ import Layout from '@/layout'
  * redirect: noRedirect           if set noRedirect will no redirect in the breadcrumb
  * name:'router-name'             the name is used by <keep-alive> (must set!!!)
  * meta : {
-	roles: ['admin','editor']    control the page roles (you can set multiple roles)
-	title: 'title'               the name show in sidebar and breadcrumb (recommend set)
-	icon: 'svg-name'/'el-icon-x' the icon show in the sidebar
-	breadcrumb: false            if set false, the item will hidden in breadcrumb(default is true)
-	activeMenu: '/example/list'  if set path, the sidebar will highlight the path you set
+  roles: ['admin','editor']    control the page roles (you can set multiple roles)
+  title: 'title'               the name show in sidebar and breadcrumb (recommend set)
+  icon: 'svg-name'/'el-icon-x' the icon show in the sidebar
+  breadcrumb: false            if set false, the item will hidden in breadcrumb(default is true)
+  activeMenu: '/example/list'  if set path, the sidebar will highlight the path you set
   }
  */
 
@@ -69,7 +69,7 @@ export const asyncRoutes = [
     redirect: '/stuCourse/index',
     name: 'StuCourse',
     meta: {
-      title: '课程管理',
+      title: '实验管理',
       icon: 'table',
       roles: ['3']
     },
@@ -77,19 +77,39 @@ export const asyncRoutes = [
       {
         path: 'courseOpt',
         name: 'CourseOpt',
-        meta: { title: '选退课程' },
+        meta: { title: '选退实验课' },
         component: () => import('@/views/student/studentCourse/courseOpt')
       },
       {
         path: 'hoursOpt',
         name: 'HoursOpt',
-        meta: { title: '选退课时' },
+        meta: { title: '选课时' },
         component: () => import('@/views/student/studentCourse/hoursOpt')
       },
       {
-        path: 'grade',
+        path: 'hoursDel',
+        name: 'HoursDel',
+        meta: { title: '退课时' },
+        component: () => import('@/views/student/studentCourse/hoursDel')
+      }
+    ]
+  },
+  {
+    path: '/grade',
+    component: Layout,
+    redirect: '/grade/index',
+    name: 'Grade',
+    // hidden: true,
+    meta: {
+      title: '实验成绩',
+      icon: 'dashboard',
+      roles: ['3']
+    },
+    children: [
+      {
+        path: 'index',
         name: 'Grade',
-        meta: { title: '课程成绩' },
+        meta: { title: '实验成绩' },
         component: () => import('@/views/student/studentCourse/grade')
       }
     ]
@@ -99,6 +119,7 @@ export const asyncRoutes = [
     component: Layout,
     redirect: '/studentEvaluate/index',
     name: 'studentEvaluate',
+    // hidden: true,
     meta: {
       title: '课程教评',
       icon: 'dashboard',
@@ -145,21 +166,6 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/systemSettings',
-    component: Layout,
-    meta: {
-      roles: ['1']
-    },
-    children: [
-      {
-        path: 'couseOpt',
-        name: 'CouseOpt',
-        component: () => import('@/views/administrators/systemSettings/courseOpt'),
-        meta: { title: '课程管理', icon: 'taskCenter' }
-      }
-    ]
-  },
-  {
     path: '/courseSelection',
     component: Layout,
     redirect: '/courseSelection/index',
@@ -172,22 +178,52 @@ export const asyncRoutes = [
         path: 'index',
         name: 'courseSelectionIndex',
         component: () => import('@/views/administrators/courseSelection/index'),
-        meta: { title: '课时配置', isClose: true, icon: 'table' },
+        meta: { title: '课时配置', icon: 'table', activeMenu: '/courseSelection' },
         hidden: true
       },
       {
         path: 'unitform',
         name: 'UnitForm',
         component: () => import('@/views/administrators/courseSelection/unitForm'),
-        meta: { title: '编辑课时', isClose: true },
+        meta: { title: '编辑课时', activeMenu: '/courseSelection' },
         hidden: true
       },
       {
         path: 'detail',
         name: 'UnitDetail',
         component: () => import('@/views/administrators/courseSelection/unitDetail'),
-        meta: { title: '课程详情', isClose: true },
+        meta: { title: '课程详情', activeMenu: '/courseSelection' },
         hidden: true
+      }
+    ]
+  },
+  {
+    path: '/classDetail',
+    component: Layout,
+    meta: {
+      roles: ['1']
+    },
+    children: [
+      {
+        path: 'index',
+        name: 'ClassDetailIndex',
+        component: () => import('@/views/administrators/classDetail/index'),
+        meta: { title: '学生选课详情', icon: 'operationLog' }
+      }
+    ]
+  },
+  {
+    path: '/gradeDetail',
+    component: Layout,
+    meta: {
+      roles: ['1']
+    },
+    children: [
+      {
+        path: 'index',
+        name: 'GradeDetailIndex',
+        component: () => import('@/views/administrators/gradeDetail/index'),
+        meta: { title: '成绩详情', icon: 'taskCenter' }
       }
     ]
   },
@@ -202,6 +238,12 @@ export const asyncRoutes = [
     },
     children: [
       {
+        path: 'couseOpt',
+        name: 'CouseOpt',
+        component: () => import('@/views/administrators/systemSettings/courseOpt'),
+        meta: { title: '课程管理' }
+      },
+      {
         path: 'majorOpt',
         name: 'MajorOpt',
         component: () => import('@/views/administrators/systemSettings/majorOpt'),
@@ -212,6 +254,21 @@ export const asyncRoutes = [
         name: 'SemesterResetIndex',
         component: () => import('@/views/administrators/systemSettings/index'),
         meta: { title: '学期重置' }
+      }
+    ]
+  },
+  {
+    path: '/infoCenter',
+    component: Layout,
+    meta: {
+      roles: ['1']
+    },
+    children: [
+      {
+        path: 'index',
+        name: 'TnfoCenterIndex',
+        component: () => import('@/views/administrators/infoCenter/index'),
+        meta: { title: '通知管理', icon: 'form' }
       }
     ]
   },
@@ -232,6 +289,21 @@ export const asyncRoutes = [
   },
   // 教师端路由
   {
+    path: '/teacherAllCourse',
+    component: Layout,
+    meta: {
+      roles: ['2']
+    },
+    children: [
+      {
+        path: 'index',
+        name: 'TeacherAllCourseIndex',
+        component: () => import('@/views/teacher/teacherAllCourse/index'),
+        meta: { title: '我的课时', icon: 'userManagement' }
+      }
+    ]
+  },
+  {
     path: '/',
     component: Layout,
     meta: {
@@ -242,13 +314,13 @@ export const asyncRoutes = [
         path: 'index',
         name: 'TeacherCourseTodayIndex',
         component: () => import('@/views/teacher/teacherCourseToday/index'),
-        meta: { title: '今日课程', icon: 'taskCenter' }
+        meta: { title: '今日课时', icon: 'taskCenter' }
       },
       {
         path: '/teacherCourseToday/detail',
         name: 'TeacherCourseCenterIndex',
         component: () => import('@/views/teacher/teacherCourseCenter/index'),
-        meta: { title: '学生管理', icon: 'user' },
+        meta: { title: '该课时学生管理', icon: 'user' },
         hidden: true
       }
     ]
@@ -269,7 +341,7 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/infoCenter',
+    path: '/gradeCenter',
     component: Layout,
     meta: {
       roles: ['2']
@@ -277,9 +349,24 @@ export const asyncRoutes = [
     children: [
       {
         path: 'index',
-        name: 'TnfoCenterIndex',
-        component: () => import('@/views/teacher/infoCenter/index'),
-        meta: { title: '通知管理', icon: 'form' }
+        name: 'GradeCenterIndex',
+        component: () => import('@/views/teacher/gradeCenter/index'),
+        meta: { title: '学生成绩', icon: 'operationLog' }
+      }
+    ]
+  },
+  {
+    path: '/teacherEvaluate',
+    component: Layout,
+    meta: {
+      roles: ['2']
+    },
+    children: [
+      {
+        path: 'index',
+        name: 'TeacherEvaluate',
+        component: () => import('@/views/teacher/teacherEvaluate/index'),
+        meta: { title: '学生教评', icon: 'form' }
       }
     ]
   },

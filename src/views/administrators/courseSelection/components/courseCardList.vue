@@ -1,6 +1,7 @@
 <template>
   <div class="card_list">
-    <el-checkbox-group v-model="checkedList" class="card_item_list" @change="handleCheckedCitiesChange">
+    <EmptyCom v-if="list.length === 0" />
+    <el-checkbox-group v-else v-model="checkedList" class="card_item_list" @change="handleCheckedCitiesChange">
       <div v-for="(item, index) in list" :key="item.id" class="card_item">
         <div class="card_item_content_container">
           <el-checkbox :key="`${item.name}_${index}`" :label="item" class="item_checkbox" />
@@ -35,8 +36,12 @@
 </template>
 
 <script>
+import EmptyCom from '@/components/EmptyCom/index.vue'
 export default {
   name: 'UnitCardList',
+  components: {
+    EmptyCom
+  },
   props: {
     list: {
       type: Array,

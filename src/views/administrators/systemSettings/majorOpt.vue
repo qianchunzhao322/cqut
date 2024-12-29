@@ -59,9 +59,25 @@
             </el-popover>
           </div>
         </div>
-        <Etable height="100%" :table-head-config="tableHeadConfig" :table-load-data="tableData" :list-loading="loading" align="left">
+        <Etable height="98%" :table-head-config="tableHeadConfig" :table-load-data="tableData" :list-loading="loading" align="left">
           <template slot="index" slot-scope="{ data }">
             <span>{{ data.$index + 1 }}</span>
+          </template>
+          <template slot="majorToCourse" slot-scope="{ data }">
+            <el-select
+              v-model="data.row.majorToCourse"
+              :style="{width: '100%'}"
+              :maxlength="20"
+              multiple
+              disabled
+            >
+              <el-option
+                v-for="item in courseList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
           </template>
           <template slot="operation" slot-scope="{ data }">
             <el-button type="text" size="small" @click="edit(data.row)"> 编辑 </el-button>
@@ -87,6 +103,25 @@
               <el-input v-model="addForm.majorName" :maxlength="20" placeholder="请输入专业名称" clearable :style="{width: '100%'}" />
             </el-form-item>
           </el-col>
+          <el-col :span="22">
+            <el-form-item label="必选课：" prop="majorToCourse" label-width="95px">
+              <el-select
+                v-model="addForm.majorToCourse"
+                clearable
+                :style="{width: '100%'}"
+                :maxlength="20"
+                multiple
+                placeholder="请选择课程专业必选课程"
+              >
+                <el-option
+                  v-for="item in courseList"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
         </el-form>
       </el-row>
       <div slot="footer" class="dialog-footer">
@@ -100,9 +135,8 @@
 
 <script>
 import PaginationVue from '@/components/Pagination/index.vue'
+import { selectCourse } from '@/api/systemSettings/courseOpt'
 import { selectMajor, addMajor, editMajor, deleteMajor } from '@/api/systemSettings/majorOpt'
-import { selectAlumniType } from '@/api/systemSettings/userOpt'
-import { selectCompanyType } from '@/api/systemSettings/unitType'
 import { upload } from '@/api/taskCenter'
 import { mapGetters } from 'vuex'
 export default {
@@ -132,6 +166,12 @@ export default {
           tooltip: true
         },
         {
+          label: '专业必选课程',
+          value: 'majorToCourse',
+          columnType: 'slot',
+          slotName: 'majorToCourse'
+        },
+        {
           label: '添加时间',
           value: 'createTime',
           tooltip: true
@@ -144,6 +184,7 @@ export default {
         }
       ],
       fileList: [],
+      courseList: [],
       formData: {
         majorName: null,
         time: null,
@@ -157,6 +198,9 @@ export default {
         ],
         majorName: [
           { required: true, message: '请输入专业名称', trigger: 'change' }
+        ],
+        majorToCourse: [
+          { required: true, message: '请选择专业必选课程', trigger: 'change' }
         ]
       },
       tableData: [],
@@ -167,11 +211,13 @@ export default {
       addDialogFormVisible: false,
       addForm: {
         majorId: null,
-        majorName: null
+        majorName: null,
+        majorToCourse: null
       },
       editForm: {
         tmajorId: null,
-        majorName: null
+        majorName: null,
+        majorToCourse: null
       },
       title: ''
     }
@@ -199,7 +245,8 @@ export default {
     add() {
       this.addForm = {
         majorId: '',
-        majorName: ''
+        majorName: '',
+        majorToCourse: []
       }
       this.title = '添加新专业'
       this.addDialogFormVisible = true
@@ -207,7 +254,11 @@ export default {
     },
     // 文件状态改变时的钩子
     fileChange(file, fileList) {
+      this.fileList = []
       this.fileList.push(file.raw)
+    },
+    handleRemove(file, fileList) {
+      this.fileList = []
     },
     submitUpload() {
       if (this.fileList.length === 0) {
@@ -216,7 +267,10 @@ export default {
         const form = new FormData()
         form.append('file', this.fileList[0])
         upload('/major/majorUpload', form).then(res => {
-          this.taskSelect()
+          if (res.code === 200) {
+            this.$message.success('上传成功')
+            this.taskSelect()
+          }
         })
       }
     },
@@ -233,24 +287,19 @@ export default {
     // 初始化
     init() {
       this.taskSelect()
+      this.getCourse()
     },
-    async getAlumniDataIntoList() {
-      const temp = []
-      await selectAlumniType({ page: 1, pageSize: 100 }).then((res) => {
-        res.data.forEach(item => {
-          temp.push({ label: item.type, value: item.id })
+    getCourse() {
+      const params = { page: 1, pageSize: 20 }
+      selectCourse(params).then((res) => {
+        res.data.records.forEach(e => {
+          var temp = {
+            value: e.courseId,
+            label: e.courseName
+          }
+          this.courseList.push(temp)
         })
       })
-      return temp
-    },
-    async getCompanyTypeDataIntoList() {
-      const temp = []
-      await selectCompanyType({ page: 1, pageSize: 100 }).then((res) => {
-        res.data.forEach(item => {
-          temp.push({ label: item.label, value: item.id })
-        })
-      })
-      return temp
     },
     // 任务-条件搜索
     taskSelect(type) {
@@ -304,7 +353,8 @@ export default {
       this.addForm = {
         id: row.id,
         majorName: row.majorName,
-        majorId: row.majorId
+        majorId: row.majorId,
+        majorToCourse: row.majorToCourse
       }
       this.title = '修改专业信息'
       this.addDialogFormVisible = true

@@ -18,29 +18,29 @@
         <li class="data_item custom_data_item">
           <div class="data_item_head">
             <div class="data_item_content">
-              <div class="title_content">系统访问量</div>
+              <div class="title_content">系统总访问量</div>
               <div class="page_title">数据总览</div>
             </div>
             <div class="data_contain">
-              <div class="data"><span>{{ dataAnalysis && dataAnalysis.classmateConfirmNumber || 0 }}</span>次
+              <div class="data"><span>{{ visitNumber || 0 }}</span>次
               </div>
             </div>
           </div>
           <div class="data_item_footer">
             <div class="data_change icon_up">
               <i class="iconfont icon-chuizhijiantou" />
-              <p>日新增 <span>{{ dataAnalysis && dataAnalysis.classmateConfirmTodayIncrease || 0 }}</span></p>
+              <p>日新增 <span>{{ visitTodayUp || 0 }}</span></p>
             </div>
             <div class="data_change icon_down">
               <i class="iconfont icon-chuizhijiantou" />
-              <p>日减少 <span>{{ dataAnalysis && dataAnalysis.classmateConfirmTodayDecrease || 0 }}</span></p>
+              <p>日减少 <span>{{ visitTodayDown || 0 }}</span></p>
             </div>
           </div>
         </li>
         <li class="data_item">
           <div class="data_item_head">
             <div class="data_item_content">
-              <div class="data">{{ dataAnalysis && dataAnalysis.classmateWaitConfirmNumber || 0 }}</div>
+              <div class="data">{{ stuNumber || 0 }}</div>
               <div class="data_type">系统学生数量</div>
             </div>
             <div class="data_item_avatar">
@@ -51,8 +51,8 @@
         <li class="data_item">
           <div class="data_item_head">
             <div class="data_item_content">
-              <div class="data">{{ dataAnalysis && dataAnalysis.companyNumber || 0 }}</div>
-              <div class="data_type">服务人次</div>
+              <div class="data">{{ optNumber || 0 }}</div>
+              <div class="data_type">操作人次</div>
             </div>
             <div class="data_item_avatar">
               <i class="iconfont icon-suoshudanwei avatar" />
@@ -63,16 +63,19 @@
     </div>
     <div class="data_analysis_footer">
       <noticeList class="alumni_info_container" />
-      <userInfo class="echart_container" item-title="用户信息" :item-data="userData" />
+      <userInfo v-if="userInfo.permissionCode === '1'" class="echart_container" item-title="用户信息" :item-data="userData" />
+      <comment v-else class="echart_container" :comments="commentData" @getData="getItem" />
     </div>
   </div>
 </template>
 
 <script>
-//   components
 import userInfo from './components/userInfo.vue'
 import noticeList from './components/noticeList.vue'
+import comment from './components/comment.vue'
 import lineChart from '@/components/dataAnalysis/lineChart/line.vue'
+import { sysInfoSelect } from '@/api/systemSettings/sysOpt'
+import { getComment } from '@/api/comment'
 
 import { dataAnalysisSelectAll } from '@/api/index'
 import { getInfo } from '@/api/user'
@@ -82,17 +85,79 @@ export default {
   components: {
     lineChart,
     userInfo,
-    noticeList
+    noticeList,
+    comment
   },
   data() {
     return {
+      visitNumber: null,
+      optNumber: null,
+      stuNumber: null,
       dataAnalysis: null,
+      visitTodayUp: null,
+      visitTodayDown: null,
       step: true,
-      userData: null
+      userData: null,
+      commentData: []
+      // commentData: {
+      //   status: '成功',
+      //   code: 200,
+      //   data: [
+      //     {
+      //       id: 'comment0001', // 评论id
+      //       commentDate: '2018-07-05 08:30', // 评论时间
+      //       ownerId: 'stu01', // 学生的id
+      //       userId: 'stu01', // 学生id
+      //       userName: '犀利的评论家', // 学生姓名
+      //       objectId: 'tea01', // 被评论者id-被评论的教师ID
+      //       content: '非常靠谱的程序员', // 评论内容
+      //       reply: [ // 回复，或子评论
+      //         {
+      //           id: '34523244545', // 评论id
+      //           commentId: 'comment0001', // 父评论id，即父亲的id
+      //           fromId: 'tea01', // 评论者id-教师Id
+      //           fromName: '夕阳红', // 评论者昵称-教师姓名
+      //           toId: 'stu01', // 被评论者id-被评论的学生ID
+      //           toName: '犀利的评论家', // 被评论者昵称-被评论的学生姓名
+      //           content: '赞同，很靠谱，水平很高', // 评论内容
+      //           commentDate: '2018-07-05 08:35' // 评论时间
+      //         },
+      //         {
+      //           id: '34523244544',
+      //           commentId: 'comment0001',
+      //           fromId: 'stu01',
+      //           fromName: '犀利的评论家',
+      //           toId: 'tea01',
+      //           toName: '夕阳红',
+      //           content: '大神一个！',
+      //           commentDate: '2018-07-05 08:50'
+      //         }
+      //       ]
+      //     },
+      //     {
+      //       id: 'comment0002',
+      //       commentDate: '2018-07-05 08:30',
+      //       ownerId: 'talents100020',
+      //       fromId: 'errhefe232213',
+      //       fromName: '毒蛇郭德纲',
+      //       content: '从没见过这么优秀的人',
+      //       reply: []
+      //     },
+      //     {
+      //       id: 'comment0003',
+      //       commentDate: '2018-07-05 08:30',
+      //       ownerId: 'talents100020',
+      //       fromId: 'errhefe232213',
+      //       fromName: '毒蛇郭德纲',
+      //       content: '从没见过这么优秀的人',
+      //       reply: []
+      //     }
+      //   ]
+      // }
     }
   },
   computed: {
-    ...mapGetters(['userInfo'])
+    ...mapGetters(['userInfo', 'userRealId'])
   },
   mounted() {
     // this.getAllHeaderData()
@@ -101,6 +166,31 @@ export default {
   methods: {
     init() {
       this.getUserInfo()
+      this.getSysInfo()
+      this.getItem()
+    },
+    // 获取评论
+    getItem() {
+      const params = { page: 1, pageSize: 100 }
+      // if(this.userInfo.permissionCode === 2){
+      //   params.userId= this.userRealId,
+      // }
+      this.userInfo.permissionCode === '2' ? params.objectId = this.userRealId : params.userId = this.userRealId
+      getComment(params).then((res) => {
+        if (res.code === 200) {
+          this.commentData = res.data.records
+        }
+      })
+    },
+    getSysInfo() {
+      sysInfoSelect().then((res) => {
+        if (res.code === 200) {
+          this.stuNumber = res.data[0].stuNumber
+          this.visitNumber = res.data[0].visitNumber
+          this.optNumber = res.data[0].optNumber
+          res.data[0].visitTodayDiff > 0 ? this.visitTodayUp = res.data[0].visitTodayDiff : this.visitTodayDown = res.data[0].visitTodayDiff
+        }
+      })
     },
     getUserInfo() {
       getInfo(this.userInfo.id).then((res) => {

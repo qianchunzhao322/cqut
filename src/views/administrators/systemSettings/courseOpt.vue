@@ -64,7 +64,7 @@
             </el-popover>
           </div>
         </div>
-        <Etable height="100%" :table-head-config="tableHeadConfig" :table-load-data="tableData" :list-loading="loading" align="left">
+        <Etable height="99%" :table-head-config="tableHeadConfig" :table-load-data="tableData" :list-loading="loading" align="left">
           <template slot="index" slot-scope="{ data }">
             <span>{{ data.$index + 1 }}</span>
           </template>
@@ -83,6 +83,7 @@
               :maxlength="20"
               multiple
               disabled
+              placeholder="无"
             >
               <el-option
                 v-for="item in majorList"
@@ -108,7 +109,7 @@
         <el-form ref="newFormRef" :rules="rules" :model="addForm">
           <el-col :span="22">
             <el-form-item label="课程编号：" prop="courseId" label-width="95px">
-              <el-input v-model="addForm.courseId" placeholder="请输入课程编号" :maxlength="20" clearable :style="{width: '100%'}" />
+              <el-input v-model="addForm.courseId" :disabled="title === '修改课程信息'" placeholder="请输入课程编号" :maxlength="20" clearable :style="{width: '100%'}" />
             </el-form-item>
           </el-col>
           <el-col :span="22">
@@ -124,25 +125,6 @@
           <el-col :span="22">
             <el-form-item label="选课上限：" prop="courseLimit" label-width="95px">
               <el-input v-model="addForm.courseLimit" placeholder="请输入选课人数上限" :maxlength="20" clearable :style="{width: '100%'}" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="22">
-            <el-form-item label="面向专业：" prop="courseTarget" label-width="95px">
-              <el-select
-                v-model="addForm.courseTarget"
-                clearable
-                :style="{width: '100%'}"
-                :maxlength="20"
-                multiple
-                placeholder="请选择课程面向专业"
-              >
-                <el-option
-                  v-for="item in majorList"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="22">
@@ -258,9 +240,6 @@ export default {
         ],
         courseStr: [
           { message: '请输入课程介绍', trigger: 'change' }
-        ],
-        courseTarget: [
-          { required: true, message: '请选择面向专业', trigger: 'change' }
         ]
       },
       majorList: [],
@@ -275,7 +254,6 @@ export default {
         courseName: '',
         courseHours: '',
         courseLimit: '',
-        courseTarget: [],
         courseStr: ''
       },
       title: '',
@@ -309,7 +287,6 @@ export default {
         courseName: '',
         courseHours: '',
         courseLimit: '',
-        courseTarget: [],
         courseStr: '',
         courseStatus: null
       }
@@ -329,7 +306,10 @@ export default {
         const form = new FormData()
         form.append('file', this.fileList[0])
         upload('/course/courseUpload', form).then(res => {
-          this.taskSelect()
+          if (res.code === 200) {
+            this.$message.success('上传成功')
+            this.taskSelect()
+          }
         })
       }
     },
@@ -344,7 +324,7 @@ export default {
       this.$refs[name].resetFields()
     },
     handleRemove(file, fileList) {
-      console.log(file, fileList)
+      this.fileList = []
     },
     // 初始化
     init() {
@@ -361,7 +341,6 @@ export default {
           }
           this.majorList.push(temp)
         })
-        this.$closeLoading('inhert_main')
       })
     },
     // 任务-条件搜索
@@ -422,10 +401,10 @@ export default {
     },
     // 表格-编辑
     edit(row) {
-      console.log(row)
       this.addForm = {
         ...row
       }
+      delete this.addForm.courseTarget
       this.title = '修改课程信息'
       this.addDialogFormVisible = true
     },
@@ -449,6 +428,9 @@ export default {
         if (res.code === 200) {
           this.$message.success('删除成功')
           this.taskSelect()
+        }
+        if (res.code === 400) {
+          this.$message.warning(res.msg)
         }
       })
     }

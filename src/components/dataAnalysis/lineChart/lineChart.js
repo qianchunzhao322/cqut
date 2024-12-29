@@ -1,8 +1,4 @@
 function initLineChart(nameArr, valueArr) {
-  // var getname = ['机构认证', '个人认证', '其他']
-  // var getvalue = [280, 125, 118]
-  var getname = nameArr
-  var getvalue = valueArr
   var option = option = {
     backgroundColor: 'rgb(252, 253, 254)',
 
@@ -18,7 +14,7 @@ function initLineChart(nameArr, valueArr) {
     },
     grid: {
       borderWidth: 0,
-      top: 10,
+      top: 45,
       bottom: 25,
       textStyle: {
         color: '#fff'
@@ -47,7 +43,7 @@ function initLineChart(nameArr, valueArr) {
       axisTick: {
         show: false
       },
-      data: ['5日', '6日', '7日', '8日', '9日', '10日', '11日', '12日']
+      data: nameArr
     }],
 
     yAxis: [{
@@ -87,10 +83,7 @@ function initLineChart(nameArr, valueArr) {
           name: '最小值'
         }]
       },
-      data: [
-        2136, 3693, 2962, 3810, 3519, 3484, 3915, 3823, 3455, 4310, 4019, 3433, 3544, 3885, 4208, 3372,
-        3484, 3915, 3748, 3675, 4009, 4433, 3544, 3285, 4208, 3372, 3484, 3915, 3823, 4265, 4298
-      ]
+      data: valueArr
     }]
   }
   return option

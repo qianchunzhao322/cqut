@@ -57,9 +57,6 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item prop="courseWeek" label="课程周次：" label-width="95px">
-              <el-input v-model="info.courseWeek" :maxlength="20" placeholder="请输入课程周次" clearable :style="{width: '100%'}" />
-            </el-form-item>
           </el-col>
         </el-form>
       </el-row>
@@ -101,8 +98,7 @@ export default {
         courseStartTime: null,
         courseEndTime: null,
         courseSite: null,
-        teaName: null,
-        courseWeek: null
+        teaName: null
       },
       title: '',
       rules: {
@@ -116,9 +112,6 @@ export default {
           { required: true, message: '该项不可为空', trigger: 'change' }
         ],
         courseTeacherName: [
-          { required: true, message: '该项不可为空', trigger: 'change' }
-        ],
-        courseWeek: [
           { required: true, message: '该项不可为空', trigger: 'change' }
         ]
       }

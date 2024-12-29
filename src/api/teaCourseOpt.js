@@ -31,7 +31,31 @@ export function classStuPage(params) {
 
 export function addGrade(params) {
   return request({
-    url: '/teacher/addGrade',
+    url: '/courseSchedulingChoose/addGrade',
+    method: 'post',
+    data: params
+  })
+}
+
+export function getSchedulingStu(params) {
+  return request({
+    url: '/courseSchedulingChoose/page',
+    method: 'post',
+    data: params
+  })
+}
+
+export function getTeaScheduling(params) {
+  return request({
+    url: '/courseScheduling/page',
+    method: 'post',
+    data: params
+  })
+}
+
+export function getSchedulingAllStu(params) {
+  return request({
+    url: '/courseSchedulingChoose/page',
     method: 'post',
     data: params
   })

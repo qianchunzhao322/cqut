@@ -13,6 +13,7 @@
       style="width: 100%;"
       border
       :height="height"
+      :stripe=" stripe"
       :max-height="maxHeight"
       :tree-props="tableTree.treeProps"
       :row-key="tableTree.key"
@@ -192,6 +193,10 @@ export default {
       type: [Number, String]
     },
     listLoading: {
+      type: Boolean,
+      default: true
+    },
+    stripe: {
       type: Boolean,
       default: true
     },

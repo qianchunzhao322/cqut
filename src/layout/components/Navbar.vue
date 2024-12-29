@@ -75,7 +75,7 @@
             placeholder="请输入用户名"
           />
         </el-form-item>
-        <el-form-item
+        <!-- <el-form-item
           label="身份证号"
           prop="identityNumber"
         >
@@ -94,17 +94,17 @@
             placeholder="请输入联系手机"
             maxlength="20"
           />
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
       <span
         slot="footer"
         class="dialog-footer"
       >
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button
+        <el-button @click="dialogVisible = false">关闭</el-button>
+        <!-- <el-button
           type="primary"
           @click="resetInfo"
-        >确定</el-button>
+        >确定</el-button> -->
       </span>
     </el-dialog>
     <el-dialog
@@ -261,9 +261,9 @@ export default {
           { min: 6, max: 12, message: '长度在 6 到 12 个字符', trigger: ['blur', 'change'] },
           {
             validator: (rule, value, callback) => {
-              const reg = /^\S*(?=\S{6,})(?=\S*\d)(?=\S*[A-Z])(?=\S*[a-z])(?=\S*[@])\S*$/
+              const reg = /^\S*(?=\S{6,})(?=\S*\d)(?=\S*[A-Z])(?=\S*[a-z])(?=\S*[!@#$%*&?])\S*$/
               if (!reg.test(value)) {
-                callback(new Error('密码强度不够,必须由大小写字母、数字、@组成'))
+                callback(new Error('密码强度不够,必须由大小写字母、数字、特殊字符组成'))
               }
               this.$refs.changePassRef.validateField('cNewPwd')
               callback()

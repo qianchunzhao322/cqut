@@ -92,11 +92,6 @@
             </el-form-item>
           </el-col>
           <el-col :span="22">
-            <el-form-item prop="identityNumber" label="身份证号：" label-width="95px">
-              <el-input v-model="addForm.identityNumber" :disabled="title === '修改学生信息'" :maxlength="20" placeholder="请输入身份证号" clearable :style="{width: '100%'}" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="22">
             <el-form-item label="所学专业：" prop="majorId" label-width="95px">
               <el-select
                 v-model="addForm.majorId"
@@ -112,11 +107,6 @@
                   :value="item.value"
                 />
               </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="22">
-            <el-form-item prop="phoneNumber" label="手机号：" label-width="95px">
-              <el-input v-model="addForm.phoneNumber" :maxlength="20" placeholder="请输入手机号" clearable :style="{width: '100%'}" />
             </el-form-item>
           </el-col>
         </el-form>
@@ -173,16 +163,6 @@ export default {
           tooltip: true
         },
         {
-          label: '手机号',
-          value: 'phoneNumber',
-          tooltip: true
-        },
-        {
-          label: '身份证号',
-          value: 'identityNumber',
-          tooltip: true
-        },
-        {
           label: '账号修改次数',
           value: 'accountModify',
           tooltip: true
@@ -207,25 +187,6 @@ export default {
         userId: [
           { required: true, message: '请输入学号', trigger: 'change' }
         ],
-        identityNumber: [
-          { required: true, message: '身份证号不能为空', trigger: ['blur', 'change'] },
-          {
-            pattern: /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/,
-            message: '请输入正确的身份证号',
-            trigger: ['blur', 'change']
-          }
-        ],
-        phoneNumber: [{
-          required: true,
-          message: '联系手机不能为空',
-          trigger: ['blur', 'change']
-        },
-        {
-          pattern:
-						/^1(3[0-9]|4[0-9]|5[0-9]|6[0-9]|7[0-9]|8[0-9]|9[0-9])\d{8}$/,
-          message: '请输入正确的手机号',
-          trigger: ['blur', 'change']
-        }],
         majorId: [
           { required: true, message: '请输入专业', trigger: 'change' }
         ]
@@ -239,9 +200,7 @@ export default {
       addForm: {
         realName: null,
         userId: null,
-        majorId: null,
-        phoneNumber: null,
-        identityNumber: null
+        majorId: null
       },
       title: '',
       multipleSelection: []
@@ -271,9 +230,7 @@ export default {
       this.addForm = {
         realName: '',
         userId: '',
-        majorId: '',
-        phoneNumber: '',
-        identityNumber: ''
+        majorId: ''
       }
       this.title = '添加学生信息'
       this.addDialogFormVisible = true
@@ -291,7 +248,10 @@ export default {
         const form = new FormData()
         form.append('file', this.fileList[0])
         upload('/user/userUpload', form).then(res => {
-          this.taskSelect()
+          if (res.code === 200) {
+            this.$message.success('上传成功')
+            this.taskSelect()
+          }
         })
       }
     },
@@ -301,6 +261,9 @@ export default {
       if (size > 2) {
         this.$message.warning('文件大小不得超过2M')
       }
+    },
+    handleRemove(file, fileList) {
+      this.fileList = []
     },
     handleSelectionChange(val) {
       this.multipleSelection = val

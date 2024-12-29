@@ -3,8 +3,8 @@
     <base-layout>
       <template slot="main">
         <div class="contorl_container">
-          <div class="contorl_title">课程成绩列表</div>
-          <div class="contorl_btns" />
+          <div class="contorl_title">我的实验成绩列表</div>
+          <div class="contorl_btns">实验总成绩：{{ sumGrade }}</div>
         </div>
         <Etable height="100%" :table-head-config="choosedTableHeadConfig" :table-load-data="choosedTableData" :list-loading="loading" align="left">
           <template slot="index" slot-scope="{ data }">
@@ -18,7 +18,9 @@
 </template>
 
 <script>
-import { getMyCourse } from '@/api/studentCourseOpt'
+// import { getMyGrade } from '@/api/studentCourseOpt'
+import { gradeAllSelect } from '@/api/detail'
+import { gradeSelect } from '@/api/detail'
 import { mapGetters } from 'vuex'
 export default {
   name: 'Grade',
@@ -37,30 +39,34 @@ export default {
           fixed: 'left'
         },
         {
-          label: '课程名称',
-          value: 'courseName',
+          label: '实验编号',
+          value: 'courseSchedulingId',
           tooltip: true,
-          fixed: 'left',
-          width: 160
+          fixed: 'left'
         },
         {
-          label: '课程编号',
-          value: 'courseId',
+          label: '实验名称',
+          value: 'courseName',
           tooltip: true,
-          width: 160
+          fixed: 'left'
+        },
+        {
+          label: '授课教师',
+          value: 'teaName',
+          tooltip: true
         },
         {
           label: '课程成绩',
-          value: 'courseScore',
-          tooltip: true,
-          width: 90
+          value: 'courseSchedulingScore',
+          tooltip: true
         }
       ],
-      choosedTableData: []
+      choosedTableData: [],
+      sumGrade: '--'
     }
   },
   computed: {
-    ...mapGetters(['userId'])
+    ...mapGetters(['userId', 'userRealId'])
   },
   mounted() {
     this.init()
@@ -70,14 +76,27 @@ export default {
   methods: {
     init() {
       this.getMy()
+      this.getSumGrade()
+    },
+    getSumGrade() {
+      const params = { userId: this.userRealId, page: this.currentPage, pageSize: this.pageSize }
+      gradeAllSelect(params).then((res) => {
+        if (res.code === 200) {
+          if (res.data) {
+            res.data.records[0].grade ? this.sumGrade = res.data.records[0].grade : this.sumGrade = '--'
+          } else {
+            this.sumGrade = '--'
+          }
+        }
+      })
     },
     getMy() {
       this.$startLoading('inhert_main')
-      getMyCourse({ page: 1, pageSize: 20 }).then((res) => {
+      gradeSelect({ stuId: this.userRealId, page: 1, pageSize: 20 }).then((res) => {
+        this.$closeLoading('inhert_main')
         if (res.code === 200) {
           this.choosedTableData = res.data.records
         }
-        this.$closeLoading('inhert_main')
       })
     }
   }

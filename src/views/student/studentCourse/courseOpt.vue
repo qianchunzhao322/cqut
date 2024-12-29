@@ -3,7 +3,7 @@
     <base-layout>
       <template slot="main">
         <div class="contorl_container">
-          <div class="contorl_title">可选课程列表</div>
+          <div class="contorl_title">可选实验课程列表</div>
           <div class="contorl_btns" />
         </div>
         <Etable height="99%" :table-head-config="chooseTableHeadConfig" :table-load-data="chooseTableData" :list-loading="chooseLoading" align="left">
@@ -17,15 +17,12 @@
       </template>
       <template slot="main">
         <div class="contorl_container">
-          <div class="contorl_title" style="color: rgb(36, 136, 255);">个人已选课程</div>
+          <div class="contorl_title" style="color: rgb(36, 136, 255);">个人已选实验课程</div>
           <div class="contorl_btns" />
         </div>
         <Etable height="100%" :table-head-config="choosedTableHeadConfig" :table-load-data="choosedTableData" :list-loading="choosedLoading" align="left">
           <template slot="index" slot-scope="{ data }">
             <span>{{ data.$index + 1 }}</span>
-          </template>
-          <template slot="operation" slot-scope="{ data }">
-            <el-button type="text" size="small" style="color: #F74B4B;" @click="del(data.row)"> 退课 </el-button>
           </template>
         </Etable>
       </template>
@@ -57,38 +54,22 @@ export default {
           label: '课程名称',
           value: 'courseName',
           tooltip: true,
-          fixed: 'left',
-          width: 160
+          fixed: 'left'
         },
         {
           label: '课程编号',
           value: 'courseId',
-          tooltip: true,
-          width: 160
+          tooltip: true
         },
         {
           label: '课时要求',
           value: 'courseHours',
-          tooltip: true,
-          width: 90
-        },
-        {
-          label: '课程容量',
-          value: 'courseLimit',
-          tooltip: true,
-          width: 90
+          tooltip: true
         },
         {
           label: '课程介绍',
           value: 'courseStr',
           tooltip: true
-        },
-        {
-          width: 90,
-          label: '操作',
-          columnType: 'slot',
-          slotName: 'operation',
-          fixed: 'right'
         }
       ],
       choosedTableData: [],
@@ -164,11 +145,15 @@ export default {
       this.getAll()
       this.getMy()
     },
+    /**
+     * 这里之所以有两个是因为后端接口写反了，该模块的功能已废弃，仅剩展示作用
+     *  */
     getAll(type) {
       this.$startLoading('inhert_main')
       getAllCourse().then((res) => {
         if (res.code === 200) {
-          this.chooseTableData = res.data
+          // this.chooseTableData = res.data
+          this.choosedTableData = res.data
         }
         this.$closeLoading('inhert_main')
       })
@@ -177,7 +162,8 @@ export default {
       this.$startLoading('inhert_main')
       getMyCourse({ page: 1, pageSize: 20 }).then((res) => {
         if (res.code === 200) {
-          this.choosedTableData = res.data.records
+          this.chooseTableData = res.data.records
+          // this.choosedTableData = res.data.records
         }
         this.$closeLoading('inhert_main')
       })

@@ -65,8 +65,8 @@
           <template slot="optRole" slot-scope="{ data }">
             <span>{{ roleMap[data.row.optRole] || '' }}</span>
           </template>
-          <template slot="optRes" slot-scope="{ data }">
-            <el-button :type="data.row.optRes == 1 ? 'success': 'danger'" size="small" plain>{{ data.row.optRes == 1 ? '成功': '失败' }}</el-button>
+          <template slot="requestRes" slot-scope="{ data }">
+            <el-button :type="data.row.requestRes == 200 ? 'success': 'danger'" size="small" plain>{{ data.row.requestRes == 200 ? '成功': '失败' }}</el-button>
           </template>
         </Etable>
       </template>
@@ -119,8 +119,18 @@ export default {
           tooltip: true
         },
         {
+          label: 'IP',
+          value: 'ip',
+          tooltip: true
+        },
+        {
           label: '请求接口',
           value: 'description',
+          tooltip: true
+        },
+        {
+          label: '请求方式',
+          value: 'requestType',
           tooltip: true
         },
         {

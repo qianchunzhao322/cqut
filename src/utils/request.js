@@ -56,7 +56,7 @@ service.interceptors.response.use(
       if (res.code === 409) {
         return res
       }
-      if (res.code === 400 && res.data === 'Please close the course optional, then update the course') {
+      if (res.code === 400) {
         return res
       }
       Message({
